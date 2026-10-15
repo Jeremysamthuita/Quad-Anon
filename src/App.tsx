@@ -10,6 +10,7 @@ import {
   AuditLogItem,
   DirectMessage,
   PostComment,
+  WhisperReel,
 } from './types';
 import {
   UNIVERSITIES,
@@ -20,62 +21,61 @@ import {
   INITIAL_CONVERSATIONS,
   INITIAL_REPORTS,
   INITIAL_AUDIT_LOGS,
+  INITIAL_WHISPERS,
   computeMomentumScore,
 } from './data/initialData';
 import { MaskedMortarboardLogo } from './components/MaskedMortarboardLogo';
+import { FloatingGhostDock, MainTabType } from './components/FloatingGhostDock';
 import { TheQuadView } from './components/TheQuadView';
+import { TheWhispersView } from './components/TheWhispersView';
 import { TheLibraryView } from './components/TheLibraryView';
 import { TheRadarView } from './components/TheRadarView';
 import { ShadowDMsView } from './components/ShadowDMsView';
+import { UniversityScannerModal } from './components/UniversityScannerModal';
 import { DocumentPreviewModal } from './components/DocumentPreviewModal';
 import { SnapMessageGateModal } from './components/SnapMessageGateModal';
 import { IdentityModal } from './components/IdentityModal';
 import { AdminSafetyModal } from './components/AdminSafetyModal';
 import { CreatePostModal } from './components/CreatePostModal';
+import { CreateWhisperModal } from './components/CreateWhisperModal';
 import { UploadResourceModal } from './components/UploadResourceModal';
 import { ReportIssueModal } from './components/ReportIssueModal';
 import { PostCommentsModal } from './components/PostCommentsModal';
 import { playHapticSound } from './utils/sound';
-import {
-  Flame,
-  BookOpen,
-  Radio,
-  MessageSquare,
-  Shield,
-  Key,
-  ChevronDown,
-  PhoneCall,
-  Clock,
-  Sparkles,
-} from 'lucide-react';
+import { Shield, Building2, Search, Sparkles } from 'lucide-react';
 
 export default function App() {
-  // Navigation tab state
-  const [activeTab, setActiveTab] = useState<'quad' | 'library' | 'radar' | 'dms'>('quad');
+  // Navigation tab state (5 main modules)
+  const [activeTab, setActiveTab] = useState<MainTabType>('quad');
 
   // Application Data States (persisted via localStorage where available)
   const [user, setUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('quadanon_user');
+    const saved = localStorage.getItem('quadanon_user_v3');
     return saved ? JSON.parse(saved) : INITIAL_USER;
   });
 
   const [posts, setPosts] = useState<Post[]>(() => {
-    const saved = localStorage.getItem('quadanon_posts');
+    const saved = localStorage.getItem('quadanon_posts_v3');
     return saved ? JSON.parse(saved) : INITIAL_POSTS;
   });
 
+  const [whispers, setWhispers] = useState<WhisperReel[]>(() => {
+    const saved = localStorage.getItem('quadanon_whispers_v3');
+    return saved ? JSON.parse(saved) : INITIAL_WHISPERS;
+  });
+
   const [resources, setResources] = useState<Resource[]>(() => {
-    const saved = localStorage.getItem('quadanon_resources');
+    const saved = localStorage.getItem('quadanon_resources_v3');
     return saved ? JSON.parse(saved) : INITIAL_RESOURCES;
   });
 
   const [issues, setIssues] = useState<CampusIssue[]>(() => {
-    const saved = localStorage.getItem('quadanon_issues');
+    const saved = localStorage.getItem('quadanon_issues_v3');
     return saved ? JSON.parse(saved) : INITIAL_ISSUES;
   });
 
   const [conversations, setConversations] = useState<Conversation[]>(() => {
-    const saved = localStorage.getItem('quadanon_convs');
+    const saved = localStorage.getItem('quadanon_convs_v3');
     return saved ? JSON.parse(saved) : INITIAL_CONVERSATIONS;
   });
 
@@ -83,9 +83,11 @@ export default function App() {
   const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>(INITIAL_AUDIT_LOGS);
 
   // Active Modals state
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isIdentityOpen, setIsIdentityOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [isCreateWhisperOpen, setIsCreateWhisperOpen] = useState(false);
   const [isUploadResourceOpen, setIsUploadResourceOpen] = useState(false);
   const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
 
@@ -94,35 +96,39 @@ export default function App() {
   const [activeSnapMessage, setActiveSnapMessage] = useState<DirectMessage | null>(null);
   const [activeCommentPost, setActiveCommentPost] = useState<Post | null>(null);
 
-  // University selector dropdown in header
-  const [showUniDropdown, setShowUniDropdown] = useState(false);
-
   // Sync state to localStorage
   useEffect(() => {
-    localStorage.setItem('quadanon_user', JSON.stringify(user));
+    localStorage.setItem('quadanon_user_v3', JSON.stringify(user));
   }, [user]);
 
   useEffect(() => {
-    localStorage.setItem('quadanon_posts', JSON.stringify(posts));
+    localStorage.setItem('quadanon_posts_v3', JSON.stringify(posts));
   }, [posts]);
 
   useEffect(() => {
-    localStorage.setItem('quadanon_resources', JSON.stringify(resources));
+    localStorage.setItem('quadanon_whispers_v3', JSON.stringify(whispers));
+  }, [whispers]);
+
+  useEffect(() => {
+    localStorage.setItem('quadanon_resources_v3', JSON.stringify(resources));
   }, [resources]);
 
   useEffect(() => {
-    localStorage.setItem('quadanon_issues', JSON.stringify(issues));
+    localStorage.setItem('quadanon_issues_v3', JSON.stringify(issues));
   }, [issues]);
 
   useEffect(() => {
-    localStorage.setItem('quadanon_convs', JSON.stringify(conversations));
+    localStorage.setItem('quadanon_convs_v3', JSON.stringify(conversations));
   }, [conversations]);
 
   const currentUniversity =
     UNIVERSITIES.find((u) => u.id === user.universityId) || UNIVERSITIES[0];
 
+  // Unread DM messages count
+  const unreadDMsCount = conversations.reduce((acc, c) => acc + c.unreadCount, 0);
+
   // Handlers for The Quad
-  const handleToggleReaction = (postId: string, key: 'fire' | 'skull' | 'cap' | 'clown' | 'fax') => {
+  const handleTogglePostReaction = (postId: string, key: 'fire' | 'skull' | 'cap' | 'clown' | 'fax') => {
     setPosts((prev) =>
       prev.map((p) => {
         if (p.id !== postId) return p;
@@ -179,7 +185,7 @@ export default function App() {
     setPosts([newPost, ...posts]);
   };
 
-  const handleAddComment = (
+  const handleAddPostComment = (
     postId: string,
     commentData: Omit<PostComment, 'id' | 'postId' | 'createdAt'>
   ) => {
@@ -212,6 +218,69 @@ export default function App() {
           : null
       );
     }
+  };
+
+  // Handlers for Whispers Reels
+  const handleToggleWhisperReaction = (whisperId: string, key: 'fire' | 'skull' | 'cap' | 'clown' | 'fax') => {
+    setWhispers((prev) =>
+      prev.map((w) => {
+        if (w.id !== whisperId) return w;
+        const hasReacted = w.userReactions.includes(key);
+        const nextUserReactions = hasReacted
+          ? w.userReactions.filter((k) => k !== key)
+          : [...w.userReactions, key];
+        const nextReactions = {
+          ...w.reactions,
+          [key]: hasReacted ? Math.max(0, w.reactions[key] - 1) : w.reactions[key] + 1,
+        };
+        return {
+          ...w,
+          reactions: nextReactions,
+          userReactions: nextUserReactions,
+        };
+      })
+    );
+  };
+
+  const handleUnlockGatedWhisper = (whisperId: string) => {
+    setWhispers((prev) =>
+      prev.map((w) => (w.id === whisperId ? { ...w, isUnlocked: true } : w))
+    );
+  };
+
+  const handleAddWhisperComment = (whisperId: string, content: string) => {
+    const newComment = {
+      id: `wc_${Date.now()}`,
+      authorHandle: user.anonHandle,
+      content,
+      createdAt: 'Just now',
+    };
+
+    setWhispers((prev) =>
+      prev.map((w) => {
+        if (w.id !== whisperId) return w;
+        return {
+          ...w,
+          commentsCount: w.commentsCount + 1,
+          comments: [...w.comments, newComment],
+        };
+      })
+    );
+  };
+
+  const handleCreateWhisper = (whisperData: Omit<WhisperReel, 'id' | 'createdAt' | 'viewsCount' | 'isUnlocked' | 'reactions' | 'userReactions' | 'commentsCount' | 'comments'>) => {
+    const newWhisper: WhisperReel = {
+      ...whisperData,
+      id: `w_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      viewsCount: 1,
+      isUnlocked: !whisperData.isViewGated,
+      reactions: { fire: 1, skull: 0, cap: 0, clown: 0, fax: 0 },
+      userReactions: ['fire'],
+      commentsCount: 0,
+      comments: [],
+    };
+    setWhispers([newWhisper, ...whispers]);
   };
 
   // Handlers for The Library
@@ -344,12 +413,13 @@ export default function App() {
   const handlePurgeExpired = () => {
     const now = Date.now();
     setPosts((prev) => prev.filter((p) => new Date(p.expiresAt).getTime() > now));
+    setWhispers((prev) => prev.filter((w) => new Date(w.expiresAt).getTime() > now));
     setAuditLogs((prev) => [
       {
         id: `log_${Date.now()}`,
         action: 'MANUAL_PURGE_RUN',
         entityType: 'ephemeral_store',
-        details: 'Admin triggered immediate TTL purge across all active feeds',
+        details: 'Admin triggered immediate TTL purge across feeds and whispers',
         timestamp: 'Just now',
       },
       ...prev,
@@ -357,132 +427,63 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0912] text-[#F0EEFF] flex flex-col font-sans selection:bg-[#FF6FD8]/30 selection:text-white pb-20 md:pb-10">
-      {/* Top Bar Contract: 3 Zones: Brand Title — 4-5 Nav Links — 1 Primary Action */}
-      <header className="sticky top-0 z-40 bg-[#0C0B18]/90 backdrop-blur-xl border-b border-[rgba(255,255,255,0.08)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4 md:gap-8">
-          {/* Zone 1: Single text element wordmark + Masked Mortarboard Logo */}
+    <div className="min-h-screen bg-[#070A10] text-[#F0EEFF] flex flex-col font-sans selection:bg-[#FF6FD8]/30 selection:text-white pb-28">
+      {/* Top Header: Brand Zone — Kenya University Scanner — Anonymous Identity */}
+      <header className="sticky top-0 z-40 bg-[#090C14]/90 backdrop-blur-2xl border-b border-[rgba(255,255,255,0.08)] shadow-lg shadow-black/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          {/* Zone 1: Wordmark & Logo */}
           <div className="flex items-center gap-3 shrink-0">
-            <MaskedMortarboardLogo size={34} />
-            <div className="flex items-baseline gap-2">
-              <span className="font-bold text-lg tracking-tight text-[#F0EEFF] font-mono">
+            <MaskedMortarboardLogo size={36} />
+            <div className="flex flex-col">
+              <span className="font-bold text-lg tracking-tight text-[#F0EEFF] font-mono leading-none">
                 QuadAnon
               </span>
-
-              {/* University Selector Badge */}
-              <div className="relative hidden sm:block">
-                <button
-                  type="button"
-                  onClick={() => setShowUniDropdown(!showUniDropdown)}
-                  className="inline-flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded-md bg-[#16142A] border border-[rgba(255,255,255,0.1)] text-[#6FFFE0] hover:border-[#6FFFE0]/40 transition-colors"
-                >
-                  <span>{currentUniversity.shortCode}</span>
-                  <ChevronDown className="w-3 h-3 opacity-60" />
-                </button>
-
-                {showUniDropdown && (
-                  <div className="absolute left-0 mt-1.5 w-72 rounded-xl bg-[#121020] border border-[rgba(255,255,255,0.15)] shadow-2xl p-1.5 z-50 divide-y divide-white/5">
-                    {UNIVERSITIES.map((u) => (
-                      <button
-                        key={u.id}
-                        onClick={() => {
-                          playHapticSound('click');
-                          setUser((prev) => ({
-                            ...prev,
-                            universityId: u.id,
-                            universityName: u.name,
-                          }));
-                          setShowUniDropdown(false);
-                        }}
-                        className={`w-full text-left p-2 rounded-lg text-xs font-mono transition-colors flex items-center justify-between ${
-                          user.universityId === u.id
-                            ? 'bg-[#6FFFE0]/15 text-[#6FFFE0] font-bold'
-                            : 'text-[#F0EEFF]/70 hover:bg-white/5 hover:text-white'
-                        }`}
-                      >
-                        <span className="truncate">{u.name}</span>
-                        <span className="text-[10px] text-[#F0EEFF]/40 ml-2">{u.shortCode}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <span className="text-[10px] font-mono text-[#6FFFE0] tracking-wider uppercase mt-0.5">
+                Glasshouse v3.0
+              </span>
             </div>
           </div>
 
-          {/* Zone 2: Navigation Links (Single-line, 1-2 words) */}
-          <nav className="hidden md:flex items-center gap-6 text-xs font-mono">
-            <button
-              onClick={() => {
-                playHapticSound('click');
-                setActiveTab('quad');
-              }}
-              className={`whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-                activeTab === 'quad'
-                  ? 'text-[#FF6FD8] font-bold border-b border-[#FF6FD8] pb-1'
-                  : 'text-[#F0EEFF]/60 hover:text-white'
-              }`}
-            >
-              <Flame className="w-3.5 h-3.5" />
-              <span>The Quad</span>
-            </button>
+          {/* Zone 2: Kenya-Wide University Scanner Trigger Button */}
+          <button
+            onClick={() => {
+              playHapticSound('click');
+              setIsScannerOpen(true);
+            }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#0E1320] border border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/50 transition-all text-left group max-w-[220px] sm:max-w-sm"
+            title="Scan & Switch University (All Kenyan Campuses)"
+          >
+            <div className="w-7 h-7 rounded-xl bg-[#6FFFE0]/10 border border-[#6FFFE0]/30 flex items-center justify-center text-[#6FFFE0] shrink-0 group-hover:scale-105 transition-transform">
+              <Building2 className="w-3.5 h-3.5" />
+            </div>
 
-            <button
-              onClick={() => {
-                playHapticSound('click');
-                setActiveTab('library');
-              }}
-              className={`whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-                activeTab === 'library'
-                  ? 'text-[#6FFFE0] font-bold border-b border-[#6FFFE0] pb-1'
-                  : 'text-[#F0EEFF]/60 hover:text-white'
-              }`}
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>The Library</span>
-            </button>
+            <div className="min-w-0 pr-1">
+              <div className="flex items-center gap-1.5">
+                <span className="font-mono text-xs font-bold text-[#6FFFE0] truncate">
+                  {currentUniversity.shortCode}
+                </span>
+                <span className="text-[10px] text-[#F0EEFF]/40 hidden sm:inline font-mono">
+                  · {currentUniversity.county}
+                </span>
+              </div>
+              <div className="text-[10px] text-[#F0EEFF]/60 truncate font-mono">
+                {currentUniversity.name}
+              </div>
+            </div>
 
-            <button
-              onClick={() => {
-                playHapticSound('click');
-                setActiveTab('radar');
-              }}
-              className={`whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-                activeTab === 'radar'
-                  ? 'text-[#FFB27A] font-bold border-b border-[#FFB27A] pb-1'
-                  : 'text-[#F0EEFF]/60 hover:text-white'
-              }`}
-            >
-              <Radio className="w-3.5 h-3.5" />
-              <span>The Radar</span>
-            </button>
+            <Search className="w-3.5 h-3.5 text-[#F0EEFF]/40 ml-auto shrink-0 group-hover:text-[#6FFFE0] transition-colors" />
+          </button>
 
-            <button
-              onClick={() => {
-                playHapticSound('click');
-                setActiveTab('dms');
-              }}
-              className={`whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-                activeTab === 'dms'
-                  ? 'text-[#B794F6] font-bold border-b border-[#B794F6] pb-1'
-                  : 'text-[#F0EEFF]/60 hover:text-white'
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>Shadow DMs</span>
-            </button>
-          </nav>
-
-          {/* Zone 3: Primary Action & Identity Controls */}
+          {/* Zone 3: Moderation & User Keypair Profile */}
           <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={() => {
                 playHapticSound('click');
                 setIsAdminOpen(true);
               }}
-              className="p-2 rounded-xl bg-[#141224] border border-white/10 text-[#F0EEFF]/60 hover:text-[#FF6FD8] transition-colors"
-              title="Moderation & Kenya ODPC Compliance"
-              aria-label="Moderation Console"
+              className="p-2.5 rounded-2xl bg-[#0E1320] border border-white/10 text-[#F0EEFF]/60 hover:text-[#FF6FD8] hover:border-[#FF6FD8]/40 transition-colors"
+              title="Refine Safety & Kenya ODPC Compliance Ops"
+              aria-label="Moderation Ops"
             >
               <Shield className="w-4 h-4" />
             </button>
@@ -492,9 +493,9 @@ export default function App() {
                 playHapticSound('click');
                 setIsIdentityOpen(true);
               }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#16142A] border border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/50 text-xs font-mono transition-all text-[#6FFFE0]"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-[#0E1320] border border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/50 text-xs font-mono transition-all text-[#6FFFE0]"
             >
-              <div className="w-2 h-2 rounded-full bg-[#6FFFE0]" />
+              <div className="w-2 h-2 rounded-full bg-[#6FFFE0] animate-pulse" />
               <span className="max-w-[120px] truncate">@{user.anonHandle}</span>
             </button>
           </div>
@@ -508,7 +509,7 @@ export default function App() {
           <TheQuadView
             posts={posts}
             currentUniversity={currentUniversity}
-            onToggleReaction={handleToggleReaction}
+            onToggleReaction={handleTogglePostReaction}
             onOpenCreatePost={() => setIsCreatePostOpen(true)}
             onOpenComments={(p) => setActiveCommentPost(p)}
             onVotePoll={handleVotePoll}
@@ -516,7 +517,19 @@ export default function App() {
           />
         )}
 
-        {/* Module 2: The Library (Academic Resource Hub) */}
+        {/* Module 2: Whispers (Media & Ephemeral Reels) */}
+        {activeTab === 'whispers' && (
+          <TheWhispersView
+            whispers={whispers}
+            currentUniversity={currentUniversity}
+            onToggleReaction={handleToggleWhisperReaction}
+            onUnlockGatedWhisper={handleUnlockGatedWhisper}
+            onAddComment={handleAddWhisperComment}
+            onOpenCreateWhisper={() => setIsCreateWhisperOpen(true)}
+          />
+        )}
+
+        {/* Module 3: The Library (Academic Resource Hub) */}
         {activeTab === 'library' && (
           <TheLibraryView
             resources={resources}
@@ -527,7 +540,7 @@ export default function App() {
           />
         )}
 
-        {/* Module 3: The Radar (Public Campus Analytics Dashboard) */}
+        {/* Module 4: The Radar (Public Issues + Polygraph Analytics Engine) */}
         {activeTab === 'radar' && (
           <TheRadarView
             issues={issues}
@@ -537,7 +550,7 @@ export default function App() {
           />
         )}
 
-        {/* Module 4: Shadow DMs (Disappearing Direct Chat) */}
+        {/* Module 5: Shadow DMs (Disappearing Direct Chat) */}
         {activeTab === 'dms' && (
           <ShadowDMsView
             conversations={conversations}
@@ -549,62 +562,29 @@ export default function App() {
         )}
       </main>
 
-      {/* Mobile Fixed Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0C0B18]/95 backdrop-blur-xl border-t border-[rgba(255,255,255,0.1)] grid grid-cols-4 h-16">
-        <button
-          onClick={() => {
-            playHapticSound('click');
-            setActiveTab('quad');
-          }}
-          className={`flex flex-col items-center justify-center transition-colors ${
-            activeTab === 'quad' ? 'text-[#FF6FD8]' : 'text-[#F0EEFF]/50'
-          }`}
-        >
-          <Flame className="w-5 h-5" />
-          <span className="text-[10px] font-mono mt-1 font-medium">The Quad</span>
-        </button>
+      {/* 3D Floating Ghost Dock Navigation */}
+      <FloatingGhostDock
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        unreadDMsCount={unreadDMsCount}
+      />
 
-        <button
-          onClick={() => {
-            playHapticSound('click');
-            setActiveTab('library');
-          }}
-          className={`flex flex-col items-center justify-center transition-colors ${
-            activeTab === 'library' ? 'text-[#6FFFE0]' : 'text-[#F0EEFF]/50'
-          }`}
-        >
-          <BookOpen className="w-5 h-5" />
-          <span className="text-[10px] font-mono mt-1 font-medium">Library</span>
-        </button>
+      {/* Kenya-Wide University Scanner Modal */}
+      <UniversityScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        universities={UNIVERSITIES}
+        currentUniversityId={user.universityId}
+        onSelectUniversity={(selected) => {
+          setUser((prev) => ({
+            ...prev,
+            universityId: selected.id,
+            universityName: selected.name,
+          }));
+        }}
+      />
 
-        <button
-          onClick={() => {
-            playHapticSound('click');
-            setActiveTab('radar');
-          }}
-          className={`flex flex-col items-center justify-center transition-colors ${
-            activeTab === 'radar' ? 'text-[#FFB27A]' : 'text-[#F0EEFF]/50'
-          }`}
-        >
-          <Radio className="w-5 h-5" />
-          <span className="text-[10px] font-mono mt-1 font-medium">Radar</span>
-        </button>
-
-        <button
-          onClick={() => {
-            playHapticSound('click');
-            setActiveTab('dms');
-          }}
-          className={`flex flex-col items-center justify-center transition-colors ${
-            activeTab === 'dms' ? 'text-[#B794F6]' : 'text-[#F0EEFF]/50'
-          }`}
-        >
-          <MessageSquare className="w-5 h-5" />
-          <span className="text-[10px] font-mono mt-1 font-medium">DMs</span>
-        </button>
-      </nav>
-
-      {/* Interactive Modals */}
+      {/* Anonymous Identity & Device Keypair Modal */}
       <IdentityModal
         user={user}
         universities={UNIVERSITIES}
@@ -613,6 +593,7 @@ export default function App() {
         onUpdateUser={(updated) => setUser((prev) => ({ ...prev, ...updated }))}
       />
 
+      {/* Admin, Moderation & Crisis Safety Console */}
       <AdminSafetyModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -622,6 +603,7 @@ export default function App() {
         onPurgeExpired={handlePurgeExpired}
       />
 
+      {/* Create Post Modal */}
       <CreatePostModal
         isOpen={isCreatePostOpen}
         onClose={() => setIsCreatePostOpen(false)}
@@ -632,6 +614,18 @@ export default function App() {
         authorAvatar={user.avatarStyle}
       />
 
+      {/* Create Whisper Reel Modal */}
+      <CreateWhisperModal
+        isOpen={isCreateWhisperOpen}
+        onClose={() => setIsCreateWhisperOpen(false)}
+        onSubmitWhisper={handleCreateWhisper}
+        currentUniversityId={currentUniversity.id}
+        currentUniversityName={currentUniversity.name}
+        authorHandle={user.anonHandle}
+        authorAvatar={user.avatarStyle}
+      />
+
+      {/* Upload Resource Modal */}
       <UploadResourceModal
         isOpen={isUploadResourceOpen}
         onClose={() => setIsUploadResourceOpen(false)}
@@ -641,6 +635,7 @@ export default function App() {
         uploaderHandle={user.anonHandle}
       />
 
+      {/* Report Campus Issue Modal */}
       <ReportIssueModal
         isOpen={isReportIssueOpen}
         onClose={() => setIsReportIssueOpen(false)}
@@ -650,21 +645,24 @@ export default function App() {
         authorHandle={user.anonHandle}
       />
 
+      {/* Document Reader Preview Modal */}
       <DocumentPreviewModal
         resource={previewResource}
         onClose={() => setPreviewResource(null)}
         onUpvote={handleUpvoteResource}
       />
 
+      {/* Snap Gate Reveal Modal */}
       <SnapMessageGateModal
         message={activeSnapMessage}
         onCloseAndBurn={handleBurnSnapMessage}
       />
 
+      {/* Post Discussion Comments Modal */}
       <PostCommentsModal
         post={activeCommentPost}
         onClose={() => setActiveCommentPost(null)}
-        onAddComment={handleAddComment}
+        onAddComment={handleAddPostComment}
         currentUserHandle={user.anonHandle}
         currentUserAvatar={user.avatarStyle}
       />

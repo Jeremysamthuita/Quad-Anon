@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CampusIssue, IssueCategory, IssueStatus, University } from '../types';
 import { Radio, Flame, Shield, Plus, ThumbsUp, MessageSquare, CheckCircle, Info, ArrowUpRight } from 'lucide-react';
 import { playHapticSound } from '../utils/sound';
+import { RadarPolygraphChart } from './RadarPolygraphChart';
 
 interface Props {
   issues: CampusIssue[];
@@ -76,19 +77,22 @@ export const TheRadarView: React.FC<Props> = ({
 
   return (
     <div className="space-y-6">
-      {/* Analytics Banner */}
-      <div className="p-5 rounded-2xl bg-[#121020]/90 border border-[rgba(255,255,255,0.08)] space-y-3">
+      {/* 1. Dedicated Issue Polygraph & Grievance Ranking Chart */}
+      <RadarPolygraphChart />
+
+      {/* 2. Campus Analytics Filter Bar */}
+      <div className="p-5 rounded-3xl bg-[#0D121E]/90 border border-[rgba(255,255,255,0.08)] space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#FFB27A]/10 text-[#FFB27A] border border-[#FFB27A]/30 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-[#FFB27A]/10 text-[#FFB27A] border border-[#FFB27A]/30 flex items-center justify-center">
               <Radio className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-[#F0EEFF]">
-                {currentUniversity.name} · Campus Issue Radar
+                {currentUniversity.name} · Local Campus Grievances
               </h2>
               <p className="text-xs text-[#F0EEFF]/60 font-mono">
-                Crowdsourced grievance momentum tracking & admin accountability
+                Crowdsourced issue tracking & administrative accountability
               </p>
             </div>
           </div>

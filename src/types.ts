@@ -1,9 +1,16 @@
+export type UniversityType = 'public_chartered' | 'private_chartered' | 'constituent_college';
+
 export interface University {
   id: number;
   name: string;
   shortCode: string;
   location: string;
+  county: string;
+  type: UniversityType;
   faculties: string[];
+  activeAnonsCount: number;
+  resourcesCount: number;
+  activeIssuesCount: number;
 }
 
 export type EphemeralDuration = 'snap' | '1h' | '24h' | '3d' | '1w';
@@ -44,6 +51,44 @@ export interface Post {
   comments: PostComment[];
 }
 
+export interface WhisperComment {
+  id: string;
+  authorHandle: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface WhisperReel {
+  id: string;
+  authorId: string;
+  authorHandle: string;
+  authorAvatar: string;
+  universityId: number;
+  universityName: string;
+  caption: string;
+  mediaUrl: string;
+  mediaType: 'video' | 'image';
+  thumbnailUrl?: string;
+  tags: string[];
+  ephemeralMode: EphemeralDuration;
+  expiresAt: string;
+  createdAt: string;
+  viewsCount: number;
+  isViewGated: boolean; // Ephemeral blur gate until tapped
+  isUnlocked: boolean;
+  durationSeconds?: number;
+  reactions: {
+    fire: number;
+    skull: number;
+    cap: number;
+    clown: number;
+    fax: number;
+  };
+  userReactions: string[];
+  commentsCount: number;
+  comments: WhisperComment[];
+}
+
 export type ResourceCategory = 'Past Papers' | 'Notes' | 'Textbooks' | 'Lab Reports' | 'Code & Cheatsheets';
 
 export interface Resource {
@@ -66,11 +111,11 @@ export interface Resource {
   hasUpvoted: boolean;
   isVerifiedContributor: boolean;
   tags: string[];
-  samplePreview: string; // text excerpt or simulated PDF pages
+  samplePreview: string;
   createdAt: string;
 }
 
-export type IssueCategory = 'Academics' | 'Facilities' | 'Security' | 'Administration';
+export type IssueCategory = 'Academics' | 'Facilities' | 'Security' | 'Administration' | 'Finance/Portal';
 export type IssueStatus = 'open' | 'trending' | 'under_review' | 'resolved';
 
 export interface CampusIssue {
@@ -78,7 +123,7 @@ export interface CampusIssue {
   authorId: string;
   authorHandle: string;
   isDeepAnon: boolean;
-  deepAnonPseudonym?: string; // e.g. "Ghost-49A2"
+  deepAnonPseudonym?: string;
   universityId: number;
   universityName: string;
   title: string;
@@ -140,7 +185,7 @@ export interface UserProfile {
 
 export interface ReportItem {
   id: string;
-  contentType: 'post' | 'resource' | 'issue' | 'message';
+  contentType: 'post' | 'resource' | 'issue' | 'message' | 'whisper';
   contentId: string;
   snippet: string;
   reason: string;
@@ -154,4 +199,25 @@ export interface AuditLogItem {
   entityType: string;
   details: string;
   timestamp: string;
+}
+
+export type TimeframePeriod = '24h' | '7d' | '30d' | 'semester';
+
+export interface PolygraphCategoryMetrics {
+  category: IssueCategory;
+  incidentCount: number;
+  percentage: number;
+  velocityScore: number; // rate of growth
+  trendingKeyword: string;
+}
+
+export interface UniversityGrievanceRank {
+  rank: number;
+  universityId: number;
+  shortCode: string;
+  universityName: string;
+  topCategory: IssueCategory;
+  grievancesCount: number;
+  momentumIndex: number;
+  resolvedRatePercent: number;
 }
