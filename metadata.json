@@ -1,0 +1,6 @@
+{
+  "name": "QuadAnon — Campus Anonymous Network",
+  "description": "Anonymous-first university platform featuring The Quad ephemeral feed, The Library academic hub, The Radar public analytics, and disappearing Shadow DMs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
