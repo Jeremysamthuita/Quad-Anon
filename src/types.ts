@@ -1,23 +1,58 @@
-export type UniversityType = 'public_chartered' | 'private_chartered' | 'constituent_college';
+/**
+ * QuadAnon Core Domain Types
+ * Clean, production-ready types aligned with the Supabase Postgres schema.
+ */
+
+export type UserRole = 'student' | 'moderator' | 'admin';
 
 export interface University {
-  id: number;
+  id: string;
   name: string;
   shortCode: string;
-  location: string;
   county: string;
-  type: UniversityType;
-  faculties: string[];
-  activeAnonsCount: number;
-  resourcesCount: number;
-  activeIssuesCount: number;
+  allowedEmailDomains: string[];
+  isActive: boolean;
 }
 
-export type EphemeralDuration = 'snap' | '1h' | '24h' | '3d' | '1w';
+export interface Profile {
+  id: string;
+  universityId: string;
+  handle: string;
+  avatarStyle: string;
+  role: UserRole;
+  createdAt: string;
+  bannedAt: string | null;
+}
+
+export type ReactionType = 'fire' | 'skull' | 'cap' | 'clown' | 'fax';
+
+export interface ReactionsCount {
+  fire: number;
+  skull: number;
+  cap: number;
+  clown: number;
+  fax: number;
+}
+
+export interface PollOption {
+  id: string;
+  label: string;
+  votesCount: number;
+  hasVoted?: boolean;
+}
+
+export interface Poll {
+  id: string;
+  question: string;
+  options: PollOption[];
+  totalVotes: number;
+  userVotedOptionId?: string | null;
+}
 
 export interface PostComment {
   id: string;
   postId: string;
+  authorId: string;
   authorHandle: string;
   authorAvatar: string;
   content: string;
@@ -26,35 +61,30 @@ export interface PostComment {
 
 export interface Post {
   id: string;
+  universityId: string;
+  universityName?: string;
   authorId: string;
   authorHandle: string;
   authorAvatar: string;
-  universityId: number;
-  universityName: string;
   contentText: string;
+  mediaType?: 'text' | 'image' | 'document' | 'video' | 'poll' | 'code';
   mediaUrl?: string;
-  mediaType?: 'image' | 'video' | 'document' | 'code' | 'poll';
   fileName?: string;
-  fileSizeFormatted?: string;
-  pollOptions?: { label: string; votes: number }[];
-  userVotedIndex?: number;
-  ephemeralMode: EphemeralDuration;
-  expiresAt: string; // ISO string
+  fileSizeBytes?: number;
+  poll?: Poll;
+  codeSnippet?: string;
+  codeLanguage?: string;
+  expiresAt: string;
   createdAt: string;
-  reactions: {
-    fire: number;
-    skull: number;
-    cap: number;
-    clown: number;
-    fax: number;
-  };
-  userReactions: string[];
+  reactions: ReactionsCount;
+  userReaction?: ReactionType | null;
   commentsCount: number;
-  comments: PostComment[];
 }
 
 export interface WhisperComment {
   id: string;
+  whisperId: string;
+  authorId: string;
   authorHandle: string;
   content: string;
   createdAt: string;
@@ -62,165 +92,127 @@ export interface WhisperComment {
 
 export interface WhisperReel {
   id: string;
+  universityId: string;
+  universityName?: string;
   authorId: string;
   authorHandle: string;
   authorAvatar: string;
-  universityId: number;
-  universityName: string;
   caption: string;
   mediaUrl: string;
-  mediaType: 'video' | 'image';
-  thumbnailUrl?: string;
+  mediaType: 'image' | 'video';
   tags: string[];
-  ephemeralMode: EphemeralDuration;
   expiresAt: string;
   createdAt: string;
-  viewsCount: number;
-  isViewGated: boolean; // Ephemeral blur gate until tapped
-  isUnlocked: boolean;
-  durationSeconds?: number;
-  reactions: {
-    fire: number;
-    skull: number;
-    cap: number;
-    clown: number;
-    fax: number;
-  };
-  userReactions: string[];
+  reactions: ReactionsCount;
+  userReaction?: ReactionType | null;
   commentsCount: number;
-  comments: WhisperComment[];
+  viewsCount: number;
 }
 
-export type ResourceCategory = 'Past Papers' | 'Notes' | 'Textbooks' | 'Lab Reports' | 'Code & Cheatsheets';
-
-export interface Resource {
-  id: string;
-  uploaderId: string;
-  uploaderHandle: string;
-  universityId: number;
-  universityName: string;
-  faculty: string;
-  department: string;
-  courseCode: string;
-  title: string;
-  description: string;
-  category: ResourceCategory;
-  fileSizeBytes: number;
-  fileSizeFormatted: string;
-  pageCount: number;
-  downloadsCount: number;
-  upvotesCount: number;
-  hasUpvoted: boolean;
-  isVerifiedContributor: boolean;
-  tags: string[];
-  samplePreview: string;
-  thumbnailUrl?: string;
-  createdAt: string;
-}
-
-export type IssueCategory = 'Academics' | 'Facilities' | 'Security' | 'Administration' | 'Finance/Portal';
-export type IssueStatus = 'open' | 'trending' | 'under_review' | 'resolved';
+export type IssueCategory = 'Facilities' | 'Academics' | 'Finance' | 'Security' | 'Administration';
+export type IssueStatus = 'open' | 'under_review' | 'resolved';
 
 export interface CampusIssue {
   id: string;
+  universityId: string;
+  universityName?: string;
   authorId: string;
   authorHandle: string;
-  isDeepAnon: boolean;
-  deepAnonPseudonym?: string;
-  universityId: number;
-  universityName: string;
   title: string;
   description: string;
   category: IssueCategory;
+  status: IssueStatus;
   upvotesCount: number;
   commentsCount: number;
-  status: IssueStatus;
-  createdAt: string;
-  hoursElapsed: number;
-  momentumScore: number;
   hasUpvoted: boolean;
-  officialResponse?: {
-    by: string;
-    text: string;
-    updatedAt: string;
-  };
+  createdAt: string;
+  statusNote?: string;
+  statusUpdatedAt?: string;
+}
+
+export type ResourceCategory = 'Past Papers' | 'Lecture Notes' | 'Lab Reports' | 'Revision Guides';
+
+export interface Resource {
+  id: string;
+  universityId: string;
+  universityName?: string;
+  uploaderId: string;
+  uploaderHandle: string;
+  courseCode: string;
+  faculty: string;
+  title: string;
+  description: string;
+  category: ResourceCategory;
+  fileUrl: string;
+  fileSizeBytes: number;
+  mimeType: string;
+  pageCount: number;
+  downloadCount: number;
+  votesCount: number;
+  hasVoted: boolean;
+  isApproved: boolean;
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt: string;
 }
 
 export interface DirectMessage {
   id: string;
+  conversationId: string;
   senderId: string;
   senderHandle: string;
   content: string;
-  mediaType?: 'text' | 'voice' | 'image';
-  isSnap: boolean;
-  isViewed: boolean;
-  viewedAt?: string;
-  destructionType: EphemeralDuration;
+  mediaType?: 'text' | 'image' | 'voice';
+  mediaUrl?: string;
   expiresAt: string;
+  viewOnce: boolean;
+  viewedAt: string | null;
+  readAt: string | null;
   createdAt: string;
-  audioDurationSec?: number;
 }
 
 export interface Conversation {
   id: string;
+  universityId: string;
+  participantId: string;
   participantHandle: string;
   participantAvatar: string;
-  universityName: string;
-  destructionType: EphemeralDuration;
-  lastMessage: string;
-  lastMessageTime: string;
+  lastMessage?: string;
+  lastMessageTime?: string;
   unreadCount: number;
-  messages: DirectMessage[];
+  ttlDuration: 'snap' | '1h' | '24h' | '1w';
+  createdAt: string;
 }
 
-export interface UserProfile {
+export interface ContentReport {
   id: string;
-  anonHandle: string;
-  publicName: string;
-  universityId: number;
-  universityName: string;
-  isProfilePublic: boolean;
-  avatarStyle: string;
-  deviceKeypairHash: string;
-  recoveryWords: string[];
-  joinedAt: string;
-}
-
-export interface ReportItem {
-  id: string;
-  contentType: 'post' | 'resource' | 'issue' | 'message' | 'whisper';
-  contentId: string;
-  snippet: string;
+  targetType: 'post' | 'whisper' | 'comment' | 'message' | 'resource' | 'issue';
+  targetId: string;
   reason: string;
   status: 'pending' | 'resolved' | 'dismissed';
-  reportedAt: string;
+  reporterId: string;
+  createdAt: string;
+  notes?: string;
 }
 
-export interface AuditLogItem {
+export interface TakedownRequest {
   id: string;
+  resourceId: string;
+  resourceTitle?: string;
+  claimantEmail: string;
+  claimantName: string;
+  reason: string;
+  status: 'pending' | 'actioned' | 'rejected';
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  actorId: string;
+  actorHandle: string;
   action: string;
-  entityType: string;
+  targetType: string;
+  targetId: string;
   details: string;
-  timestamp: string;
-}
-
-export type TimeframePeriod = '24h' | '7d' | '30d' | 'semester';
-
-export interface PolygraphCategoryMetrics {
-  category: IssueCategory;
-  incidentCount: number;
-  percentage: number;
-  velocityScore: number; // rate of growth
-  trendingKeyword: string;
-}
-
-export interface UniversityGrievanceRank {
-  rank: number;
-  universityId: number;
-  shortCode: string;
-  universityName: string;
-  topCategory: IssueCategory;
-  grievancesCount: number;
-  momentumIndex: number;
-  resolvedRatePercent: number;
+  createdAt: string;
 }

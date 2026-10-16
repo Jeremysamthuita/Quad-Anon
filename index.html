@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QuadAnon — Campus Anonymous Network</title>
-    <meta name="description" content="Anonymous-first university platform featuring The Quad ephemeral feed, The Library academic hub, The Radar public analytics, and disappearing Shadow DMs." />
-    <meta property="og:title" content="QuadAnon — Campus Anonymous Network" />
-    <meta property="og:description" content="Anonymous-first university platform featuring The Quad ephemeral feed, The Library academic hub, The Radar public analytics, and disappearing Shadow DMs." />
+    <title>QuadAnon — Pseudonymous Campus Network</title>
+    <meta name="description" content="A pseudonymous campus network for university students featuring Whispers, The Quad, expiring Shadow DMs, Campus Radar, and The Library." />
+    <meta property="og:title" content="QuadAnon — Pseudonymous Campus Network" />
+    <meta property="og:description" content="A pseudonymous campus network for university students featuring Whispers, The Quad, expiring Shadow DMs, Campus Radar, and The Library." />
     <meta property="og:type" content="website" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#070A10" />
@@ -18,10 +18,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('quadanon_theme');
+          var isDark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#070A10');
+          } else {
+            document.documentElement.classList.remove('dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#F4F7FC');
+          }
+        } catch (e) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+      })();
+    </script>
   </head>
   <body class="font-sans antialiased selection:bg-[#FF6FD8]/30 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

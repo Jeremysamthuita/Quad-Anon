@@ -12,6 +12,14 @@
   --color-cyan: #5EEAD4;
   --color-sage: #8A9A86;
   --color-danger: #FF5C7A;
+
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  --color-border-glass: var(--border-glass);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
 }
 
 /* Light Theme Variables */
