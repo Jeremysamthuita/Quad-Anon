@@ -41,12 +41,42 @@ import { CreateWhisperModal } from './components/CreateWhisperModal';
 import { UploadResourceModal } from './components/UploadResourceModal';
 import { ReportIssueModal } from './components/ReportIssueModal';
 import { PostCommentsModal } from './components/PostCommentsModal';
+import { LoadingSplashScreen } from './components/LoadingSplashScreen';
+import { PWAInstallButton } from './components/PWAInstallButton';
 import { playHapticSound } from './utils/sound';
-import { Shield, Building2, Search, Sparkles } from 'lucide-react';
+import { Shield, Building2, Search, Sparkles, Sun, Moon } from 'lucide-react';
 
 export default function App() {
-  // Navigation tab state (5 main modules)
-  const [activeTab, setActiveTab] = useState<MainTabType>('quad');
+  // Loading Splash Screen state (Atmospheric initialization)
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Theme Switcher State: Light Mode (Crisp porcelain/ice) vs Dark Mode (Obsidian/midnight)
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('quadanon_theme');
+    return (saved as 'dark' | 'light') || 'dark';
+  });
+
+  // Navigation tab state: Default Landing Page is 'whispers' (Media & Ephemeral Reels)
+  const [activeTab, setActiveTab] = useState<MainTabType>('whispers');
+
+  // Sync theme with document element and metadata
+  useEffect(() => {
+    localStorage.setItem('quadanon_theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#070A10');
+    } else {
+      document.documentElement.classList.remove('dark');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', '#F4F7FC');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    playHapticSound('click');
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Application Data States (persisted via localStorage where available)
   const [user, setUser] = useState<UserProfile>(() => {
@@ -220,19 +250,29 @@ export default function App() {
     }
   };
 
-  // Handlers for Whispers Reels
+  // Handlers for Whispers Reels (Strict Single Reaction Constraint: One reaction per whisper)
   const handleToggleWhisperReaction = (whisperId: string, key: 'fire' | 'skull' | 'cap' | 'clown' | 'fax') => {
     setWhispers((prev) =>
       prev.map((w) => {
         if (w.id !== whisperId) return w;
-        const hasReacted = w.userReactions.includes(key);
-        const nextUserReactions = hasReacted
-          ? w.userReactions.filter((k) => k !== key)
-          : [...w.userReactions, key];
-        const nextReactions = {
-          ...w.reactions,
-          [key]: hasReacted ? Math.max(0, w.reactions[key] - 1) : w.reactions[key] + 1,
-        };
+        const currentReaction = w.userReactions[0] as ('fire' | 'skull' | 'cap' | 'clown' | 'fax') | undefined;
+        const nextReactions = { ...w.reactions };
+        let nextUserReactions: ('fire' | 'skull' | 'cap' | 'clown' | 'fax')[] = [];
+
+        if (currentReaction === key) {
+          // Tapping the active reaction unselects/toggles off
+          nextReactions[key] = Math.max(0, (nextReactions[key] || 1) - 1);
+          nextUserReactions = [];
+        } else {
+          // If user previously reacted with another emoji, decrement that one
+          if (currentReaction && nextReactions[currentReaction] !== undefined) {
+            nextReactions[currentReaction] = Math.max(0, nextReactions[currentReaction] - 1);
+          }
+          // Set and increment the newly chosen single reaction
+          nextReactions[key] = (nextReactions[key] || 0) + 1;
+          nextUserReactions = [key];
+        }
+
         return {
           ...w,
           reactions: nextReactions,
@@ -427,18 +467,23 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070A10] text-[#F0EEFF] flex flex-col font-sans selection:bg-[#FF6FD8]/30 selection:text-white pb-28">
-      {/* Top Header: Brand Zone — Kenya University Scanner — Anonymous Identity */}
-      <header className="sticky top-0 z-40 bg-[#090C14]/90 backdrop-blur-2xl border-b border-[rgba(255,255,255,0.08)] shadow-lg shadow-black/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col font-sans selection:bg-[#FF6FD8]/30 selection:text-white pb-28 transition-colors duration-300">
+      {/* Loading Splash Screen with Atmospheric Transition */}
+      {showSplash && (
+        <LoadingSplashScreen onComplete={() => setShowSplash(false)} />
+      )}
+
+      {/* Top Header: Brand Zone — Kenya University Scanner — Anonymous Identity — Theme Switcher — PWA */}
+      <header className="sticky top-0 z-40 bg-[var(--bg-surface)] backdrop-blur-2xl border-b border-[var(--border-glass)] shadow-md dark:shadow-black/60 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Zone 1: Wordmark & Logo */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             <MaskedMortarboardLogo size={36} />
             <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight text-[#F0EEFF] font-mono leading-none">
+              <span className="font-bold text-lg tracking-tight text-[var(--text-primary)] font-mono leading-none">
                 QuadAnon
               </span>
-              <span className="text-[10px] font-mono text-[#6FFFE0] tracking-wider uppercase mt-0.5">
+              <span className="text-[10px] font-mono text-[#6FFFE0] tracking-wider uppercase mt-0.5 font-bold">
                 Glasshouse v3.0
               </span>
             </div>
@@ -450,10 +495,10 @@ export default function App() {
               playHapticSound('click');
               setIsScannerOpen(true);
             }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-[#0E1320] border border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/50 transition-all text-left group max-w-[220px] sm:max-w-sm"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-black/5 dark:bg-[#0E1320] border border-neutral-300 dark:border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/60 transition-all text-left group max-w-[180px] sm:max-w-xs md:max-w-sm"
             title="Scan & Switch University (All Kenyan Campuses)"
           >
-            <div className="w-7 h-7 rounded-xl bg-[#6FFFE0]/10 border border-[#6FFFE0]/30 flex items-center justify-center text-[#6FFFE0] shrink-0 group-hover:scale-105 transition-transform">
+            <div className="w-7 h-7 rounded-xl bg-[#6FFFE0]/15 border border-[#6FFFE0]/40 flex items-center justify-center text-[#6FFFE0] shrink-0 group-hover:scale-105 transition-transform">
               <Building2 className="w-3.5 h-3.5" />
             </div>
 
@@ -462,41 +507,60 @@ export default function App() {
                 <span className="font-mono text-xs font-bold text-[#6FFFE0] truncate">
                   {currentUniversity.shortCode}
                 </span>
-                <span className="text-[10px] text-[#F0EEFF]/40 hidden sm:inline font-mono">
+                <span className="text-[10px] text-neutral-500 dark:text-[#F0EEFF]/40 hidden sm:inline font-mono">
                   · {currentUniversity.county}
                 </span>
               </div>
-              <div className="text-[10px] text-[#F0EEFF]/60 truncate font-mono">
+              <div className="text-[10px] text-neutral-600 dark:text-[#F0EEFF]/60 truncate font-mono">
                 {currentUniversity.name}
               </div>
             </div>
 
-            <Search className="w-3.5 h-3.5 text-[#F0EEFF]/40 ml-auto shrink-0 group-hover:text-[#6FFFE0] transition-colors" />
+            <Search className="w-3.5 h-3.5 text-neutral-400 dark:text-[#F0EEFF]/40 ml-auto shrink-0 group-hover:text-[#6FFFE0] transition-colors" />
           </button>
 
-          {/* Zone 3: Moderation & User Keypair Profile */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          {/* Zone 3: PWA Download, Theme Switcher, Moderation & User Keypair Profile */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* PWA App Download/Install Button */}
+            <PWAInstallButton />
+
+            {/* 3D Theme Switcher Toggle (Light Mode Porcelain vs Dark Mode Obsidian) */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 sm:p-2.5 rounded-2xl bg-black/5 dark:bg-[#0E1320] border border-neutral-300 dark:border-white/10 text-neutral-700 dark:text-[#F0EEFF]/70 hover:text-amber-500 dark:hover:text-[#FFE66D] hover:border-amber-400 dark:hover:border-[#FFE66D]/40 transition-all shadow-sm active:scale-95"
+              title={`Switch to ${theme === 'dark' ? 'Light Mode (Porcelain/Ice Surfaces)' : 'Dark Mode (Obsidian/Neon Surfaces)'}`}
+              aria-label="Toggle Theme"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-[#FFE66D]" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-600" />
+              )}
+            </button>
+
+            {/* Moderation Safety Ops */}
             <button
               onClick={() => {
                 playHapticSound('click');
                 setIsAdminOpen(true);
               }}
-              className="p-2.5 rounded-2xl bg-[#0E1320] border border-white/10 text-[#F0EEFF]/60 hover:text-[#FF6FD8] hover:border-[#FF6FD8]/40 transition-colors"
+              className="p-2 sm:p-2.5 rounded-2xl bg-black/5 dark:bg-[#0E1320] border border-neutral-300 dark:border-white/10 text-neutral-600 dark:text-[#F0EEFF]/60 hover:text-[#FF6FD8] hover:border-[#FF6FD8]/40 transition-colors"
               title="Refine Safety & Kenya ODPC Compliance Ops"
               aria-label="Moderation Ops"
             >
               <Shield className="w-4 h-4" />
             </button>
 
+            {/* Anonymous Identity & Avatar Profile */}
             <button
               onClick={() => {
                 playHapticSound('click');
                 setIsIdentityOpen(true);
               }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-[#0E1320] border border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/50 text-xs font-mono transition-all text-[#6FFFE0]"
+              className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-2xl bg-black/5 dark:bg-[#0E1320] border border-neutral-300 dark:border-[rgba(255,255,255,0.12)] hover:border-[#6FFFE0]/50 text-xs font-mono transition-all text-neutral-900 dark:text-[#6FFFE0]"
             >
               <div className="w-2 h-2 rounded-full bg-[#6FFFE0] animate-pulse" />
-              <span className="max-w-[120px] truncate">@{user.anonHandle}</span>
+              <span className="max-w-[80px] sm:max-w-[120px] truncate">@{user.anonHandle}</span>
             </button>
           </div>
         </div>

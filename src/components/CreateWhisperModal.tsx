@@ -65,7 +65,8 @@ export const CreateWhisperModal: React.FC<Props> = ({
     e.preventDefault();
     if (!caption.trim()) return;
 
-    playHapticSound('send');
+    // Requirement: Play subtle customized hissing/whisper sound effect on post
+    playHapticSound('whisper');
 
     const lifespanObj = LIFESPANS.find((l) => l.id === lifespan) || LIFESPANS[2];
     const expiresAt = new Date(Date.now() + lifespanObj.ms).toISOString();

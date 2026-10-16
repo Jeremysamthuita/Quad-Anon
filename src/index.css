@@ -4,11 +4,6 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --color-void: #070A10;
-  --color-nebula: #0D111A;
-  --color-surface: #0E1320;
-  --color-surface-hover: #151C2E;
-
   --color-bubblegum: #FF6FD8;
   --color-mint: #6FFFE0;
   --color-peach: #FFB27A;
@@ -17,57 +12,109 @@
   --color-cyan: #5EEAD4;
   --color-sage: #8A9A86;
   --color-danger: #FF5C7A;
-
-  --color-text-primary: #F0EEFF;
-  --color-text-secondary: rgba(240, 238, 255, 0.65);
-  --color-text-muted: rgba(240, 238, 255, 0.35);
 }
 
+/* Light Theme Variables */
 :root {
-  color-scheme: dark;
+  --bg-canvas: #F4F7FC;
+  --bg-nebula: #E8EEF8;
+  --bg-surface: rgba(255, 255, 255, 0.78);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.92);
+  --border-glass: rgba(0, 30, 80, 0.1);
+  --border-glass-highlight: rgba(255, 255, 255, 0.95);
+  --text-primary: #0F172A;
+  --text-secondary: rgba(15, 23, 42, 0.65);
+  --text-muted: rgba(15, 23, 42, 0.4);
+  --water-shadow: 0 14px 34px rgba(15, 30, 60, 0.08), 0 2px 6px rgba(15, 30, 60, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --water-shadow-hover: 0 20px 42px rgba(15, 30, 60, 0.12), 0 4px 10px rgba(15, 30, 60, 0.06), inset 0 1px 1px rgba(255, 255, 255, 1);
+  --dock-bg: rgba(255, 255, 255, 0.88);
+  --dock-border: rgba(0, 30, 80, 0.12);
+  --dock-shadow: 0 20px 50px rgba(15, 35, 75, 0.14), inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/* Dark Theme Variables */
+html.dark {
+  --bg-canvas: #070A10;
+  --bg-nebula: #0D111A;
+  --bg-surface: rgba(13, 17, 26, 0.78);
+  --bg-surface-elevated: rgba(18, 24, 38, 0.88);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-highlight: rgba(255, 255, 255, 0.18);
+  --text-primary: #F0EEFF;
+  --text-secondary: rgba(240, 238, 255, 0.65);
+  --text-muted: rgba(240, 238, 255, 0.35);
+  --water-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  --water-shadow-hover: 0 20px 46px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  --dock-bg: rgba(10, 14, 22, 0.88);
+  --dock-border: rgba(255, 255, 255, 0.12);
+  --dock-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 body {
-  background-color: #070A10;
-  color: #F0EEFF;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html:not(.dark) body {
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(183, 148, 246, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 10% 90%, rgba(111, 255, 224, 0.1), transparent);
+  background-attachment: fixed;
+}
+
+html.dark body {
   background-image: 
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(183, 148, 246, 0.08), transparent),
     radial-gradient(ellipse 60% 40% at 10% 90%, rgba(111, 255, 224, 0.04), transparent);
   background-attachment: fixed;
 }
 
-/* 3D and 2D Hybrid Dark Glassmorphism */
-.glass-panel {
-  background: rgba(13, 17, 26, 0.78);
+/* 3D & 2D Hybrid Water-Glassmorphism Classes */
+.water-glass-card {
+  background: var(--bg-surface);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--water-shadow);
+  border-radius: 1.5rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 }
 
-.glass-panel-hover:hover {
-  background: rgba(18, 24, 38, 0.88);
-  border-color: rgba(255, 255, 255, 0.16);
+.water-glass-card-hover:hover {
+  background: var(--bg-surface-elevated);
   transform: translateY(-2px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  box-shadow: var(--water-shadow-hover);
 }
 
 /* Floating 3D Ghost Dock Navigation */
 .floating-ghost-dock {
-  background: rgba(10, 14, 22, 0.88);
+  background: var(--dock-bg);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.8),
-    0 4px 16px rgba(0, 0, 0, 0.6),
-    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--dock-border);
+  box-shadow: var(--dock-shadow);
 }
 
-/* Keyframes for subtle 3D floating animation */
+/* 3D Neumorphic Chat Bubble styling */
+.chat-bubble-received {
+  background: var(--bg-surface);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--water-shadow);
+}
+
+.chat-bubble-sent {
+  background: #FF6FD8;
+  color: #0F172A;
+  box-shadow: 0 8px 24px rgba(255, 111, 216, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Subtle animations */
 @keyframes ghostFloat {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -88,12 +135,18 @@ body {
   }
 }
 
-@keyframes radarSweep {
+@keyframes whisperAura {
   0% {
-    transform: rotate(0deg);
+    transform: scale(0.95);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
   }
   100% {
-    transform: rotate(360deg);
+    transform: scale(0.95);
+    opacity: 0.4;
   }
 }
 
@@ -105,25 +158,25 @@ body {
   animation: pulseGlow 2.4s ease-in-out infinite;
 }
 
-.animate-radar-sweep {
-  animation: radarSweep 6s linear infinite;
+.animate-whisper-aura {
+  animation: whisperAura 2s ease-in-out infinite;
 }
 
-/* Custom dark scrollbar */
+/* Custom crisp dark/light scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #070A10;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(150, 150, 150, 0.25);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(150, 150, 150, 0.45);
 }

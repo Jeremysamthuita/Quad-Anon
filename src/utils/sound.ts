@@ -1,4 +1,4 @@
-// Subtle Web Audio API tactile feedback synthesizer
+// Subtle Web Audio API tactile & whisper sound synthesizer
 let audioCtx: AudioContext | null = null;
 
 function getAudioContext(): AudioContext | null {
@@ -15,17 +15,51 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-export function playHapticSound(type: 'click' | 'pop' | 'snap' | 'send' | 'vote' | 'badge') {
+export type SoundType = 'click' | 'pop' | 'snap' | 'send' | 'vote' | 'badge' | 'whisper';
+
+export function playHapticSound(type: SoundType) {
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
+
+    const now = ctx.currentTime;
+
+    // Custom atmospheric whisper/hissing breath sound
+    if (type === 'whisper') {
+      const duration = 0.35; // 350ms
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const whiteNoise = ctx.createBufferSource();
+      whiteNoise.buffer = buffer;
+
+      const bandpass = ctx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(3200, now);
+      bandpass.Q.setValueAtTime(1.8, now);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.08, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+      whiteNoise.connect(bandpass);
+      bandpass.connect(gain);
+      gain.connect(ctx.destination);
+
+      whiteNoise.start(now);
+      whiteNoise.stop(now + duration);
+      return;
+    }
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-
-    const now = ctx.currentTime;
 
     if (type === 'click') {
       osc.type = 'triangle';

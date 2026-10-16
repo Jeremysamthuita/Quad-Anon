@@ -33,7 +33,9 @@ export interface Post {
   universityName: string;
   contentText: string;
   mediaUrl?: string;
-  mediaType?: 'image' | 'code' | 'poll';
+  mediaType?: 'image' | 'video' | 'document' | 'code' | 'poll';
+  fileName?: string;
+  fileSizeFormatted?: string;
   pollOptions?: { label: string; votes: number }[];
   userVotedIndex?: number;
   ephemeralMode: EphemeralDuration;
@@ -112,6 +114,7 @@ export interface Resource {
   isVerifiedContributor: boolean;
   tags: string[];
   samplePreview: string;
+  thumbnailUrl?: string;
   createdAt: string;
 }
 
