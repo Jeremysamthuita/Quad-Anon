@@ -3,7 +3,7 @@ import { Resource, ResourceCategory } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { EmptyState } from '../../components/EmptyState';
 import { Modal } from '../../components/Modal';
-import { formatFileSize, formatRelativeTime, generateId } from '../../lib/utils';
+import { formatFileSize, generateId } from '../../lib/utils';
 import { playHapticSound } from '../../utils/sound';
 import {
   BookOpen,
@@ -13,9 +13,7 @@ import {
   ThumbsUp,
   FileText,
   ShieldCheck,
-  AlertTriangle,
   Check,
-  Eye,
   Flag,
 } from 'lucide-react';
 
@@ -84,7 +82,10 @@ export const LibraryCatalog: React.FC = () => {
     setResources((prev) =>
       prev.map((r) => (r.id === res.id ? { ...r, downloadCount: r.downloadCount + 1 } : r))
     );
-    const blob = new Blob([`Educational Material: ${res.title}\nCourse: ${res.courseCode}\nUploaded for peer study.`], { type: 'text/plain' });
+    const blob = new Blob(
+      [`Educational Material: ${res.title}\nCourse: ${res.courseCode}\nUploaded for peer study.`],
+      { type: 'text/plain' }
+    );
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -152,7 +153,10 @@ export const LibraryCatalog: React.FC = () => {
       <div className="p-4 rounded-3xl water-glass-card space-y-3 shadow-sm">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-text-muted absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
+            <Search
+              className="w-4 h-4 text-text-muted absolute left-3.5 top-1/2 -translate-y-1/2"
+              aria-hidden="true"
+            />
             <input
               type="text"
               value={searchQuery}
@@ -321,10 +325,12 @@ export const LibraryCatalog: React.FC = () => {
               <span>Allowed Content Policy</span>
             </div>
             <p>
-              Allowed: Lecture summaries, student notes, revision guides, and past exam question papers where permitted by your institution.
+              Allowed: Lecture summaries, student notes, revision guides, and past exam question
+              papers where permitted by your institution.
             </p>
             <p className="text-danger">
-              Strictly Prohibited: Real upcoming exam leaks, unauthorized commercial textbooks, personal student records, or plagiarized submissions.
+              Strictly Prohibited: Real upcoming exam leaks, unauthorized commercial textbooks,
+              personal student records, or plagiarized submissions.
             </p>
           </div>
 
@@ -402,6 +408,11 @@ export const LibraryCatalog: React.FC = () => {
                 }}
                 className="w-full p-2 rounded-xl bg-canvas border border-border-glass text-xs font-mono text-text-primary outline-none"
               />
+              {fileName && (
+                <p className="text-[10px] text-mint font-mono mt-1 truncate">
+                  Selected: {fileName}
+                </p>
+              )}
             </div>
           </div>
 
@@ -415,7 +426,8 @@ export const LibraryCatalog: React.FC = () => {
               required
             />
             <span>
-              I confirm this material complies with campus copyright policies and contains no unauthorized commercial textbook content or leaked exams.
+              I confirm this material complies with campus copyright policies and contains no
+              unauthorized commercial textbook content or leaked exams.
             </span>
           </label>
 
@@ -442,7 +454,11 @@ export const LibraryCatalog: React.FC = () => {
       <Modal
         isOpen={!!previewResource}
         onClose={() => setPreviewResource(null)}
-        title={previewResource ? `${previewResource.courseCode} — ${previewResource.title}` : 'Document Preview'}
+        title={
+          previewResource
+            ? `${previewResource.courseCode} — ${previewResource.title}`
+            : 'Document Preview'
+        }
         description={`Shared on ${campus.shortCode} · ${previewResource?.category}`}
         maxWidth="lg"
       >
@@ -453,15 +469,20 @@ export const LibraryCatalog: React.FC = () => {
                 <span>Course: {previewResource.courseCode}</span>
                 <span>Faculty: {previewResource.faculty}</span>
               </div>
-              <p className="text-text-secondary">{previewResource.description || 'No additional summary provided.'}</p>
+              <p className="text-text-secondary">
+                {previewResource.description || 'No additional summary provided.'}
+              </p>
             </div>
 
             {/* Sandboxed document preview frame */}
             <div className="h-64 rounded-2xl bg-surface-elevated border border-border-glass p-6 flex flex-col items-center justify-center text-center space-y-2">
               <FileText className="w-10 h-10 text-mint" aria-hidden="true" />
-              <div className="text-xs font-mono font-bold text-text-primary">{previewResource.title}</div>
+              <div className="text-xs font-mono font-bold text-text-primary">
+                {previewResource.title}
+              </div>
               <p className="text-[11px] font-mono text-text-muted">
-                Sandboxed document reader · {previewResource.pageCount} pages available for offline download.
+                Sandboxed document reader · {previewResource.pageCount} pages available for offline
+                download.
               </p>
             </div>
 
@@ -501,12 +522,15 @@ export const LibraryCatalog: React.FC = () => {
           <div className="p-6 text-center space-y-2 text-xs font-mono text-mint">
             <Check className="w-8 h-8 mx-auto" aria-hidden="true" />
             <p className="font-bold">Takedown notice submitted.</p>
-            <p className="text-text-secondary">Moderators have received your notice and will action it promptly.</p>
+            <p className="text-text-secondary">
+              Moderators have received your notice and will action it promptly.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleTakedownSubmit} className="space-y-4">
             <p className="text-xs text-text-secondary font-mono leading-relaxed">
-              If you are the copyright holder or authorized representative and believe this material was uploaded without permission, submit your notice below.
+              If you are the copyright holder or authorized representative and believe this material
+              was uploaded without permission, submit your notice below.
             </p>
 
             <div>

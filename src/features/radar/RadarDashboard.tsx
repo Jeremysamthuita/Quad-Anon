@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
-import { CampusIssue, IssueCategory, IssueStatus } from '../../types';
+import { CampusIssue, IssueCategory } from '../../types';
 import { useAuth } from '../auth/AuthContext';
 import { EmptyState } from '../../components/EmptyState';
 import { Modal } from '../../components/Modal';
 import { formatRelativeTime, generateId } from '../../lib/utils';
 import { playHapticSound } from '../../utils/sound';
-import {
-  Radio,
-  Plus,
-  ThumbsUp,
-  Clock,
-  CheckCircle,
-  HelpCircle,
-  Building2,
-  AlertCircle,
-  Info,
-} from 'lucide-react';
+import { Radio, Plus, ThumbsUp, Info } from 'lucide-react';
 
 const CATEGORIES: IssueCategory[] = [
   'Facilities',
@@ -33,7 +23,6 @@ export const RadarDashboard: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<IssueCategory>('Facilities');
-  const [showFormulaInfo, setShowFormulaInfo] = useState(false);
 
   const filteredIssues = issues.filter((iss) => {
     if (selectedCategory !== 'all' && iss.category !== selectedCategory) return false;
@@ -44,7 +33,8 @@ export const RadarDashboard: React.FC = () => {
   const resolvedIssues = issues.filter((i) => i.status === 'resolved').length;
   const underReviewIssues = issues.filter((i) => i.status === 'under_review').length;
   const openIssues = issues.filter((i) => i.status === 'open').length;
-  const resolutionPercentage = totalIssues > 0 ? Math.round((resolvedIssues / totalIssues) * 100) : 0;
+  const resolutionPercentage =
+    totalIssues > 0 ? Math.round((resolvedIssues / totalIssues) * 100) : 0;
 
   const handleToggleUpvote = (issueId: string) => {
     playHapticSound('vote');
@@ -127,9 +117,7 @@ export const RadarDashboard: React.FC = () => {
 
         <div className="p-4 rounded-2xl water-glass-card space-y-1">
           <div className="text-[11px] font-mono text-text-muted">Open Grievances</div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-peach">
-            {openIssues}
-          </div>
+          <div className="text-xl sm:text-2xl font-bold font-mono text-peach">{openIssues}</div>
         </div>
 
         <div className="p-4 rounded-2xl water-glass-card space-y-1">
@@ -152,7 +140,10 @@ export const RadarDashboard: React.FC = () => {
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-cyan shrink-0" aria-hidden="true" />
           <span>
-            Rankings Formula: <code className="text-cyan font-bold">(Upvotes × 2 + Comments × 1.5) ÷ (Hours Elapsed + 2)</code>
+            Rankings Formula:{' '}
+            <code className="text-cyan font-bold">
+              (Upvotes × 2 + Comments × 1.5) ÷ (Hours Elapsed + 2)
+            </code>
           </span>
         </div>
       </div>
@@ -214,19 +205,19 @@ export const RadarDashboard: React.FC = () => {
                     <span className="px-2 py-0.5 rounded-md bg-cyan/15 text-cyan font-mono text-[10px] font-bold">
                       {issue.category}
                     </span>
-                    <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold capitalize ${
-                      issue.status === 'resolved'
-                        ? 'bg-mint/15 text-mint'
-                        : issue.status === 'under_review'
-                        ? 'bg-lemon/15 text-lemon'
-                        : 'bg-peach/15 text-peach'
-                    }`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold capitalize ${
+                        issue.status === 'resolved'
+                          ? 'bg-mint/15 text-mint'
+                          : issue.status === 'under_review'
+                            ? 'bg-lemon/15 text-lemon'
+                            : 'bg-peach/15 text-peach'
+                      }`}
+                    >
                       {issue.status.replace('_', ' ')}
                     </span>
                   </div>
-                  <h2 className="text-base font-bold font-mono text-text-primary">
-                    {issue.title}
-                  </h2>
+                  <h2 className="text-base font-bold font-mono text-text-primary">{issue.title}</h2>
                 </div>
 
                 {/* Single Upvote Button */}
@@ -246,9 +237,7 @@ export const RadarDashboard: React.FC = () => {
                 </button>
               </div>
 
-              <p className="text-sm text-text-secondary leading-relaxed">
-                {issue.description}
-              </p>
+              <p className="text-sm text-text-secondary leading-relaxed">{issue.description}</p>
 
               <div className="pt-2 border-t border-border-glass flex items-center justify-between text-xs font-mono text-text-muted">
                 <span>Reported by @{issue.authorHandle}</span>

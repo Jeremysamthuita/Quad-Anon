@@ -111,17 +111,11 @@ export const Modal: React.FC<ModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border-glass bg-surface-elevated">
           <div>
-            <h2
-              id="modal-dialog-title"
-              className="text-base font-bold font-mono text-text-primary"
-            >
+            <h2 id="modal-dialog-title" className="text-base font-bold font-mono text-text-primary">
               {title}
             </h2>
             {description && (
-              <p
-                id="modal-dialog-description"
-                className="text-xs text-text-secondary mt-0.5"
-              >
+              <p id="modal-dialog-description" className="text-xs text-text-secondary mt-0.5">
                 {description}
               </p>
             )}
@@ -137,9 +131,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">{children}</div>
       </div>
     </div>
   );

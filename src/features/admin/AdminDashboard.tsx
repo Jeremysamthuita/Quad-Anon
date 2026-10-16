@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { ContentReport, TakedownRequest, AuditLog, CampusIssue } from '../../types';
+import { ContentReport, TakedownRequest, AuditLog } from '../../types';
 import { Modal } from '../../components/Modal';
 import { formatRelativeTime, generateId } from '../../lib/utils';
 import { playHapticSound } from '../../utils/sound';
-import {
-  Shield,
-  AlertTriangle,
-  FileText,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Trash2,
-  Lock,
-  UserX,
-} from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
   const { profile, campus } = useAuth();
@@ -191,7 +181,9 @@ export const AdminDashboard: React.FC = () => {
                     Flagged: {rep.targetType} ({rep.targetId})
                   </div>
                   <div className="text-text-secondary mt-0.5">{rep.reason}</div>
-                  <div className="text-[10px] text-text-muted mt-1">{formatRelativeTime(rep.createdAt)}</div>
+                  <div className="text-[10px] text-text-muted mt-1">
+                    {formatRelativeTime(rep.createdAt)}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -242,7 +234,9 @@ export const AdminDashboard: React.FC = () => {
                 <div>
                   <div className="font-bold text-danger">Takedown Request: {td.resourceId}</div>
                   <div className="text-text-secondary mt-0.5">{td.reason}</div>
-                  <div className="text-[10px] text-text-muted mt-1">Claimant: {td.claimantEmail}</div>
+                  <div className="text-[10px] text-text-muted mt-1">
+                    Claimant: {td.claimantEmail}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -298,9 +292,7 @@ export const AdminDashboard: React.FC = () => {
         description="This action will be logged in the immutable audit trail."
       >
         <div className="space-y-4">
-          <p className="text-sm font-mono text-text-primary">
-            {confirmAction?.description}
-          </p>
+          <p className="text-sm font-mono text-text-primary">{confirmAction?.description}</p>
 
           <div className="flex justify-end gap-2 pt-2">
             <button

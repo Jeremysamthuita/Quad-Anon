@@ -11,16 +11,19 @@ import {
   BarChart2,
   FileText,
   Clock,
-  Send,
   Flame,
   Skull,
   GraduationCap,
   Sparkles,
-  Paperclip,
   CheckCircle2,
 } from 'lucide-react';
 
-const REACTION_CONFIG: { type: ReactionType; label: string; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
+const REACTION_CONFIG: {
+  type: ReactionType;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}[] = [
   { type: 'fire', label: 'Fire', icon: Flame, color: 'text-peach' },
   { type: 'skull', label: 'Skull', icon: Skull, color: 'text-text-secondary' },
   { type: 'cap', label: 'Cap', icon: GraduationCap, color: 'text-mint' },
@@ -189,9 +192,7 @@ export const QuadFeed: React.FC = () => {
             <MessageSquare className="w-5 h-5" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="text-base font-bold font-mono text-text-primary">
-              The Quad Feed
-            </h1>
+            <h1 className="text-base font-bold font-mono text-text-primary">The Quad Feed</h1>
             <p className="text-xs text-text-secondary font-mono">
               Open discussions, polls, and student documents · {campus.shortCode}
             </p>
@@ -287,7 +288,10 @@ export const QuadFeed: React.FC = () => {
                   </div>
                   <div className="space-y-1.5">
                     {post.poll.options.map((opt) => {
-                      const pct = post.poll!.totalVotes > 0 ? Math.round((opt.votesCount / post.poll!.totalVotes) * 100) : 0;
+                      const pct =
+                        post.poll!.totalVotes > 0
+                          ? Math.round((opt.votesCount / post.poll!.totalVotes) * 100)
+                          : 0;
                       const hasVotedThis = post.poll!.userVotedOptionId === opt.id;
                       const hasVotedAny = !!post.poll!.userVotedOptionId;
 
@@ -311,18 +315,26 @@ export const QuadFeed: React.FC = () => {
                             />
                           )}
                           <span className="relative z-10 flex items-center gap-1.5">
-                            {hasVotedThis && <CheckCircle2 className="w-3.5 h-3.5 text-bubblegum" aria-hidden="true" />}
+                            {hasVotedThis && (
+                              <CheckCircle2
+                                className="w-3.5 h-3.5 text-bubblegum"
+                                aria-hidden="true"
+                              />
+                            )}
                             <span>{opt.label}</span>
                           </span>
                           {hasVotedAny && (
-                            <span className="relative z-10 font-bold text-text-secondary">{pct}%</span>
+                            <span className="relative z-10 font-bold text-text-secondary">
+                              {pct}%
+                            </span>
                           )}
                         </button>
                       );
                     })}
                   </div>
                   <div className="text-[10px] font-mono text-text-muted text-right">
-                    {post.poll.totalVotes} {post.poll.totalVotes === 1 ? 'vote' : 'votes'} · One vote per student
+                    {post.poll.totalVotes} {post.poll.totalVotes === 1 ? 'vote' : 'votes'} · One
+                    vote per student
                   </div>
                 </div>
               )}
@@ -482,7 +494,7 @@ export const QuadFeed: React.FC = () => {
                 <button
                   key={dur.id}
                   type="button"
-                  onClick={() => setSelectedDuration(dur.id as any)}
+                  onClick={() => setSelectedDuration(dur.id as '1h' | '24h' | '3d' | '1w')}
                   className={`p-2 rounded-xl text-xs font-mono border min-h-[44px] transition-all ${
                     selectedDuration === dur.id
                       ? 'bg-bubblegum text-neutral-900 border-bubblegum font-bold'
@@ -520,7 +532,10 @@ export const QuadFeed: React.FC = () => {
         title="Post Replies"
         description="Pseudonymous campus thread."
       >
-        <form onSubmit={(e) => activeCommentsPostId && handleAddComment(activeCommentsPostId, e)} className="space-y-3">
+        <form
+          onSubmit={(e) => activeCommentsPostId && handleAddComment(activeCommentsPostId, e)}
+          className="space-y-3"
+        >
           <input
             type="text"
             value={commentInput}

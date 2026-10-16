@@ -48,15 +48,25 @@ export const PWAInstallButton: React.FC = () => {
 
           <div className="text-left p-4 rounded-2xl bg-canvas border border-border-glass space-y-2 text-xs font-mono text-text-secondary">
             <div className="flex items-start gap-2">
-              <span className="w-4 h-4 rounded-full bg-mint text-neutral-900 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
-              <span>Tap the <strong>Share</strong> button in Safari.</span>
+              <span className="w-4 h-4 rounded-full bg-mint text-neutral-900 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                1
+              </span>
+              <span>
+                Tap the <strong>Share</strong> button in Safari.
+              </span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="w-4 h-4 rounded-full bg-mint text-neutral-900 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
-              <span>Select <strong>"Add to Home Screen"</strong>.</span>
+              <span className="w-4 h-4 rounded-full bg-mint text-neutral-900 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                2
+              </span>
+              <span>
+                Select <strong>"Add to Home Screen"</strong>.
+              </span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="w-4 h-4 rounded-full bg-mint text-neutral-900 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
+              <span className="w-4 h-4 rounded-full bg-mint text-neutral-900 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                3
+              </span>
               <span>Launch QuadAnon from your home screen with zero browser bars.</span>
             </div>
           </div>

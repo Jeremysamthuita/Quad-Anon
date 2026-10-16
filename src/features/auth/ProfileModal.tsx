@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import { Modal } from '../../components/Modal';
 import { AVATAR_STICKER_LIBRARY } from '../../data/avatarLibrary';
 import { playHapticSound } from '../../utils/sound';
-import { User, Sparkles, Download, Trash2, Building2 } from 'lucide-react';
+import { Sparkles, Download, Trash2, Building2 } from 'lucide-react';
 
 export const ProfileModal: React.FC = () => {
   const { profile, campus, activeModal, closeModal, setProfile, signOut } = useAuth();
@@ -42,7 +42,11 @@ export const ProfileModal: React.FC = () => {
   };
 
   const handleDeleteAccount = () => {
-    if (window.confirm('Delete pseudonymous account and all associated content? This is irreversible.')) {
+    if (
+      window.confirm(
+        'Delete pseudonymous account and all associated content? This is irreversible.'
+      )
+    ) {
       signOut();
       closeModal();
     }

@@ -24,8 +24,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck
+      - name: Lint (ESLint)
         run: npm run lint
+
+      - name: Typecheck (tsc)
+        run: npm run typecheck
+
+      - name: Check Code Formatting (Prettier)
+        run: npm run format:check
+
+      - name: Run Tests (Vitest)
+        run: npm test
 
       - name: Build production bundle
         run: npm run build

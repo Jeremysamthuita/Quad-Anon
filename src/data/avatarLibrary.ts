@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface StickerAvatar {
   id: string;
   name: string;

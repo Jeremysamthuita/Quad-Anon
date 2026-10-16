@@ -20,12 +20,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <div className="w-12 h-12 rounded-2xl bg-surface-elevated border border-border-glass flex items-center justify-center text-text-secondary shadow-sm">
         {icon}
       </div>
-      <h3 className="text-base font-bold font-mono text-text-primary">
-        {title}
-      </h3>
-      <p className="text-xs sm:text-sm text-text-secondary max-w-sm">
-        {description}
-      </p>
+      <h3 className="text-base font-bold font-mono text-text-primary">{title}</h3>
+      <p className="text-xs sm:text-sm text-text-secondary max-w-sm">{description}</p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}

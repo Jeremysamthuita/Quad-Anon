@@ -8,9 +8,7 @@ export const NotFoundPage: React.FC = () => {
       <div className="w-16 h-16 rounded-3xl bg-surface border border-border-glass flex items-center justify-center text-peach shadow-lg">
         <Compass className="w-8 h-8" aria-hidden="true" />
       </div>
-      <h1 className="text-2xl font-bold font-mono text-text-primary">
-        404 — Page Not Found
-      </h1>
+      <h1 className="text-2xl font-bold font-mono text-text-primary">404 — Page Not Found</h1>
       <p className="text-sm text-text-secondary max-w-sm">
         This campus path does not exist, or the link has expired and was removed.
       </p>

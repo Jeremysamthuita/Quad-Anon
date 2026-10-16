@@ -4,16 +4,7 @@ import { MaskedMortarboardLogo } from './MaskedMortarboardLogo';
 import { ThemeToggle } from './ThemeToggle';
 import { PWAInstallButton } from './PWAInstallButton';
 import { useAuth } from '../features/auth/AuthContext';
-import {
-  Film,
-  MessageSquare,
-  Send,
-  Radio,
-  BookOpen,
-  Shield,
-  Building2,
-  Info,
-} from 'lucide-react';
+import { Film, MessageSquare, Send, Radio, BookOpen, Shield, Building2, Info } from 'lucide-react';
 
 interface NavItem {
   to: string;
@@ -176,7 +167,10 @@ export const AppLayout: React.FC = () => {
                   }`
                 }
               >
-                <Icon className={`w-5 h-5 mb-0.5 transition-transform ${isActive ? 'scale-110 text-mint' : 'text-text-muted group-hover:text-text-primary'}`} aria-hidden="true" />
+                <Icon
+                  className={`w-5 h-5 mb-0.5 transition-transform ${isActive ? 'scale-110 text-mint' : 'text-text-muted group-hover:text-text-primary'}`}
+                  aria-hidden="true"
+                />
                 <span
                   className={`text-[10px] font-mono tracking-tight ${
                     isActive ? 'text-text-primary font-bold' : 'text-text-muted'

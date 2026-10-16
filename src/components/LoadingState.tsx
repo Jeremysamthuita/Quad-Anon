@@ -11,17 +11,10 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
 }) => {
   if (variant === 'card') {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="space-y-4"
-      >
+      <div role="status" aria-live="polite" className="space-y-4">
         <span className="sr-only">{label}</span>
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="p-5 rounded-3xl water-glass-card animate-pulse space-y-3"
-          >
+          <div key={i} className="p-5 rounded-3xl water-glass-card animate-pulse space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-2xl bg-surface-elevated" />
               <div className="space-y-1.5 flex-1">

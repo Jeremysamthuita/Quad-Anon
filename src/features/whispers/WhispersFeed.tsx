@@ -13,14 +13,15 @@ import {
   GraduationCap,
   Sparkles,
   MessageCircle,
-  Eye,
-  Lock,
   Clock,
-  Send,
-  AlertTriangle,
 } from 'lucide-react';
 
-const REACTION_CONFIG: { type: ReactionType; label: string; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
+const REACTION_CONFIG: {
+  type: ReactionType;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}[] = [
   { type: 'fire', label: 'Fire', icon: Flame, color: 'text-peach' },
   { type: 'skull', label: 'Skull', icon: Skull, color: 'text-text-secondary' },
   { type: 'cap', label: 'Cap', icon: GraduationCap, color: 'text-mint' },
@@ -97,7 +98,8 @@ export const WhispersFeed: React.FC = () => {
       authorHandle: profile?.handle || 'CampusStudent',
       authorAvatar: profile?.avatarStyle || 'phantom_ghostling',
       caption: caption.trim(),
-      mediaUrl: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80',
+      mediaUrl:
+        'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80',
       mediaType: 'image',
       tags: tags.length > 0 ? tags : ['campus'],
       expiresAt: new Date(Date.now() + durationMs).toISOString(),
@@ -178,11 +180,11 @@ export const WhispersFeed: React.FC = () => {
               {/* Card Header */}
               <div className="px-5 py-3 border-b border-border-glass bg-surface flex items-center justify-between text-xs font-mono">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-text-primary">
-                    @{whisper.authorHandle}
-                  </span>
+                  <span className="font-bold text-text-primary">@{whisper.authorHandle}</span>
                   <span className="text-text-muted">·</span>
-                  <span className="text-text-secondary">{formatRelativeTime(whisper.createdAt)}</span>
+                  <span className="text-text-secondary">
+                    {formatRelativeTime(whisper.createdAt)}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1 text-peach text-[11px]">
                   <Clock className="w-3.5 h-3.5" aria-hidden="true" />
@@ -202,9 +204,7 @@ export const WhispersFeed: React.FC = () => {
 
               {/* Content and reactions */}
               <div className="p-5 space-y-3">
-                <p className="text-sm text-text-primary leading-relaxed">
-                  {whisper.caption}
-                </p>
+                <p className="text-sm text-text-primary leading-relaxed">{whisper.caption}</p>
 
                 {whisper.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
@@ -310,7 +310,7 @@ export const WhispersFeed: React.FC = () => {
                 <button
                   key={dur.id}
                   type="button"
-                  onClick={() => setSelectedDuration(dur.id as any)}
+                  onClick={() => setSelectedDuration(dur.id as 'snap' | '1h' | '24h' | '1w')}
                   className={`p-2 rounded-xl text-xs font-mono border min-h-[44px] transition-all ${
                     selectedDuration === dur.id
                       ? 'bg-peach text-neutral-900 border-peach font-bold'
@@ -352,7 +352,10 @@ export const WhispersFeed: React.FC = () => {
         title="Whisper Discussion"
         description="Pseudonymous replies to this campus reel."
       >
-        <form onSubmit={(e) => activeCommentsWhisperId && handleAddComment(activeCommentsWhisperId, e)} className="space-y-3">
+        <form
+          onSubmit={(e) => activeCommentsWhisperId && handleAddComment(activeCommentsWhisperId, e)}
+          className="space-y-3"
+        >
           <input
             type="text"
             value={commentText}

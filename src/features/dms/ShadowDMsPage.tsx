@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { Conversation, DirectMessage } from '../../types';
 import { useAuth } from '../auth/AuthContext';
-import { EmptyState } from '../../components/EmptyState';
 import { Modal } from '../../components/Modal';
-import { formatRelativeTime, formatExpiresIn, generateId } from '../../lib/utils';
+import { formatRelativeTime, generateId } from '../../lib/utils';
 import { playHapticSound } from '../../utils/sound';
-import {
-  Send,
-  Plus,
-  Clock,
-  ArrowLeft,
-  Eye,
-  ShieldAlert,
-  User,
-  MessageSquare,
-} from 'lucide-react';
+import { Send, Plus, Clock, ArrowLeft, MessageSquare } from 'lucide-react';
 
 export const ShadowDMsPage: React.FC = () => {
   const { profile, campus } = useAuth();
@@ -111,9 +101,7 @@ export const ShadowDMsPage: React.FC = () => {
           {/* List Header */}
           <div className="p-4 border-b border-border-glass bg-surface flex items-center justify-between">
             <div>
-              <h1 className="text-sm font-bold font-mono text-text-primary">
-                Shadow DMs
-              </h1>
+              <h1 className="text-sm font-bold font-mono text-text-primary">Shadow DMs</h1>
               <p className="text-[11px] font-mono text-text-secondary">
                 Messages delete after timer
               </p>
@@ -132,9 +120,7 @@ export const ShadowDMsPage: React.FC = () => {
             {conversations.length === 0 ? (
               <div className="p-8 text-center space-y-2">
                 <Send className="w-6 h-6 text-text-muted mx-auto" aria-hidden="true" />
-                <p className="text-xs font-mono text-text-secondary">
-                  No open Shadow DMs.
-                </p>
+                <p className="text-xs font-mono text-text-secondary">No open Shadow DMs.</p>
                 <button
                   onClick={() => setIsNewChatOpen(true)}
                   className="px-3 py-1.5 rounded-full bg-lavender text-neutral-900 font-mono text-[11px] font-bold min-h-[44px]"
@@ -163,7 +149,9 @@ export const ShadowDMsPage: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="truncate text-text-primary">@{conv.participantHandle}</span>
+                        <span className="truncate text-text-primary">
+                          @{conv.participantHandle}
+                        </span>
                         <span className="text-[10px] text-text-muted">TTL: {conv.ttlDuration}</span>
                       </div>
                       <p className="text-[11px] text-text-secondary truncate font-mono mt-0.5">
@@ -252,7 +240,10 @@ export const ShadowDMsPage: React.FC = () => {
               </div>
 
               {/* Chat Input */}
-              <form onSubmit={handleSendMessage} className="p-3 border-t border-border-glass bg-surface flex items-center gap-2">
+              <form
+                onSubmit={handleSendMessage}
+                className="p-3 border-t border-border-glass bg-surface flex items-center gap-2"
+              >
                 <input
                   type="text"
                   value={messageText}
@@ -321,7 +312,7 @@ export const ShadowDMsPage: React.FC = () => {
                 <button
                   key={ttl.id}
                   type="button"
-                  onClick={() => setSelectedTTL(ttl.id as any)}
+                  onClick={() => setSelectedTTL(ttl.id as 'snap' | '1h' | '24h' | '1w')}
                   className={`p-2 rounded-xl text-xs font-mono border min-h-[44px] transition-all ${
                     selectedTTL === ttl.id
                       ? 'bg-lavender text-neutral-900 border-lavender font-bold'
