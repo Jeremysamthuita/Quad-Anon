@@ -16,11 +16,10 @@ const generateHandle = () => {
 
 export const CreateProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { setProfile } = useAuth();
+  const { setProfile, authUserId, authError } = useAuth();
   const [step, setStep] = useState<1 | 2>(1);
   const [search, setSearch] = useState('');
   const [institution, setInstitution] = useState(LAUNCH_CAMPUS);
-  const [customInstitution, setCustomInstitution] = useState('');
   const [handle, setHandle] = useState('');
   const [avatarId, setAvatarId] = useState('phantom_ghostling');
   const [handleMessage, setHandleMessage] = useState('');
@@ -53,7 +52,7 @@ export const CreateProfilePage: React.FC = () => {
     if (profanity.includes(normalized.toLowerCase())) {
       return 'That handle is not allowed.';
     }
-    return `@${normalized} is available at ${institution.name}`;
+    return `@${normalized} looks good. Availability is checked when you save.`;
   };
 
   const handleInputChange = (value: string) => {
@@ -61,23 +60,9 @@ export const CreateProfilePage: React.FC = () => {
     setHandleMessage(evaluateHandle(value));
   };
 
-  const handleAddInstitution = () => {
-    const value = customInstitution.trim();
-    if (!value) return;
-    setInstitution({
-      id: `pending-${value.toLowerCase().replace(/\s+/g, '-')}`,
-      name: value,
-      shortCode: value.slice(0, 4).toUpperCase(),
-      county: 'Pending review',
-      allowedEmailDomains: [],
-      isActive: true,
-    });
-    setSearch('');
-    setCustomInstitution('');
-    setStep(1);
-  };
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const submitProfile = () => {
+  const submitProfile = async () => {
     const normalizedHandle = handle.trim().replace(/^@/, '');
     const message = evaluateHandle(normalizedHandle);
     if (message.startsWith('Choose') || message.includes('must be') || message.includes('Use letters') || message.includes('reserved') || message.includes('not allowed')) {
@@ -85,16 +70,26 @@ export const CreateProfilePage: React.FC = () => {
       return;
     }
 
-    setProfile({
-      id: crypto.randomUUID(),
-      universityId: institution.id,
-      handle: normalizedHandle,
-      avatarStyle: avatarId,
-      role: 'student',
-      createdAt: new Date().toISOString(),
-      bannedAt: null,
-    });
-    navigate('/whispers', { replace: true });
+    setSubmitError(null);
+    try {
+      await setProfile({
+        id: authUserId ?? '',
+        universityId: institution.id,
+        handle: normalizedHandle,
+        avatarStyle: avatarId,
+        role: 'student',
+        createdAt: new Date().toISOString(),
+        bannedAt: null,
+      });
+      navigate('/whispers', { replace: true });
+    } catch (error) {
+      console.error('Unable to create profile.', error);
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'Could not create your profile. Please try again.'
+      );
+    }
   };
 
   return (
@@ -109,6 +104,12 @@ export const CreateProfilePage: React.FC = () => {
               <h1 className="mt-3 text-3xl font-extrabold text-[var(--text)]">Choose your institution</h1>
               <p className="mt-2 text-sm text-[var(--muted)]">Only your institution is shown. Never your name or email.</p>
             </div>
+
+            {authError && (
+              <p role="alert" className="mb-4 rounded-2xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+                {authError}
+              </p>
+            )}
 
             <label className="mb-4 block">
               <span className="sr-only">Search institutions</span>
@@ -145,26 +146,9 @@ export const CreateProfilePage: React.FC = () => {
               })}
             </div>
 
-            <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
-              <label className="text-sm font-medium text-[var(--text)]">Can't find yours?</label>
-              <div className="mt-3 flex gap-2">
-                <input
-                  value={customInstitution}
-                  onChange={(event) => setCustomInstitution(event.target.value)}
-                  placeholder="Type your institution's name"
-                  className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddInstitution}
-                  className="rounded-xl bg-[var(--surface-2)] px-3 py-2.5 text-sm font-semibold text-[var(--text)]"
-                >
-                  Add institution
-                </button>
-              </div>
-              <p className="mt-3 text-[11px] text-[var(--muted)]">
-                New institutions are checked before other students can see them.
-              </p>
+            <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]">
+              Only approved institutions can be selected in this build. More campuses will appear
+              here when they are added.
             </div>
 
             <div className="mt-auto pt-6">
@@ -254,6 +238,11 @@ export const CreateProfilePage: React.FC = () => {
               <p className="mb-4 text-center text-[11px] text-[var(--muted)]">
                 No email or real name is saved on your profile.
               </p>
+              {submitError && (
+                <p role="alert" className="mb-4 rounded-2xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+                  {submitError}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={submitProfile}

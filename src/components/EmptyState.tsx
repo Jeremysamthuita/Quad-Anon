@@ -16,7 +16,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
 }) => {
   return (
-    <div className="p-8 sm:p-12 text-center rounded-3xl water-glass-card flex flex-col items-center justify-center space-y-3">
+    <div className="p-8 sm:p-12 text-center rounded-3xl water-glass-card border border-border-glass flex flex-col items-center justify-center space-y-3">
       <div className="w-12 h-12 rounded-2xl bg-surface-elevated border border-border-glass flex items-center justify-center text-text-secondary shadow-sm">
         {icon}
       </div>

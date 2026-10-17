@@ -1,14 +1,14 @@
 import React from 'react';
 
 const AVATAR_TONES: Record<string, string> = {
-  chibi_kitsune: '#5B3FA8',
-  cyber_neko: '#7A5CC4',
-  boba_bear: '#4B3A86',
-  mecha_bunny: '#8C6FD0',
-  shadow_dragon: '#6A5A9E',
-  astroneko: '#9A8BC0',
-  sakura_finch: '#3F3370',
-  phantom_ghostling: '#A58CD9',
+  chibi_kitsune: 'var(--color-lavender)',
+  cyber_neko: 'var(--color-bubblegum)',
+  boba_bear: 'var(--color-mint)',
+  mecha_bunny: 'var(--color-peach)',
+  shadow_dragon: 'var(--color-cyan)',
+  astroneko: 'var(--color-lemon)',
+  sakura_finch: 'var(--color-lavender)',
+  phantom_ghostling: 'var(--color-bubblegum)',
 };
 
 interface AvatarMaskProps {
@@ -24,7 +24,11 @@ export const AvatarMask: React.FC<AvatarMaskProps> = ({
 }) => (
   <span
     className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full ${className}`}
-    style={{ width: size, height: size, backgroundColor: AVATAR_TONES[avatarStyle] ?? '#5B3FA8' }}
+    style={{
+      width: size,
+      height: size,
+      backgroundColor: AVATAR_TONES[avatarStyle] ?? 'var(--color-lavender)',
+    }}
   >
     <svg
       viewBox="0 0 24 24"

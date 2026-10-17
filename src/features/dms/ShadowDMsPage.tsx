@@ -88,7 +88,7 @@ export const ShadowDMsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto rounded-3xl water-glass-card border border-border-glass overflow-hidden shadow-xl min-h-[600px] flex flex-col">
+    <div className="max-w-4xl mx-auto rounded-3xl water-glass-card border border-border-glass overflow-hidden shadow-xl h-[calc(100vh-7rem)] min-h-[520px] flex flex-col">
       {/* Container with responsive list-to-chat layout for mobile */}
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Left Side: Conversation List (hidden on mobile if activeConversationId is selected) */}
@@ -135,7 +135,6 @@ export const ShadowDMsPage: React.FC = () => {
                   <button
                     key={conv.id}
                     onClick={() => {
-                      playHapticSound('click');
                       setActiveConversationId(conv.id);
                     }}
                     className={`w-full p-3 rounded-2xl text-left transition-all min-h-[44px] flex items-center gap-3 ${
@@ -191,7 +190,7 @@ export const ShadowDMsPage: React.FC = () => {
                     </h2>
                     <p className="text-[10px] font-mono text-text-muted flex items-center gap-1">
                       <Clock className="w-3 h-3 text-peach" aria-hidden="true" />
-                      <span>Server TTL: {activeConversation.ttlDuration}</span>
+                      <span>Delete timer: {activeConversation.ttlDuration}</span>
                     </p>
                   </div>
                 </div>
@@ -208,7 +207,7 @@ export const ShadowDMsPage: React.FC = () => {
                     <Clock className="w-5 h-5 text-peach" aria-hidden="true" />
                     <p>No messages yet.</p>
                     <p className="text-text-muted text-[11px]">
-                      Messages are deleted from our servers after the timer.
+                      Demo messages are held in memory for this session only.
                     </p>
                   </div>
                 ) : (
@@ -225,10 +224,10 @@ export const ShadowDMsPage: React.FC = () => {
                           <span>{formatRelativeTime(msg.createdAt)}</span>
                         </div>
                         <div
-                          className={`max-w-[85%] p-3.5 rounded-2xl text-xs font-mono shadow-sm ${
+                          className={`max-w-[85%] p-3.5 rounded-2xl text-xs font-mono shadow-sm water-glass-card border border-border-glass ${
                             isMine
                               ? 'bg-lavender text-neutral-900 font-medium'
-                              : 'bg-surface border border-border-glass text-text-primary'
+                              : 'text-text-primary'
                           }`}
                         >
                           {msg.content}
@@ -281,7 +280,7 @@ export const ShadowDMsPage: React.FC = () => {
         isOpen={isNewChatOpen}
         onClose={() => setIsNewChatOpen(false)}
         title="Start Shadow DM"
-        description="Connect pseudonymously with a verified student on your campus."
+        description="Start a pseudonymous chat using a handle."
       >
         <form onSubmit={handleStartConversation} className="space-y-4">
           <div>

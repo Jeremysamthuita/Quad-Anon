@@ -6,9 +6,10 @@ import { playHapticSound } from '../utils/sound';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, authReady } = useAuth();
 
   const enter = () => {
+    if (!authReady) return;
     playHapticSound('click');
     navigate(profile ? '/whispers' : '/create-profile', { replace: true });
   };
@@ -43,24 +44,20 @@ export const LandingPage: React.FC = () => {
         </h1>
 
         <p className="mt-4 text-sm leading-6 text-text-secondary">
-          Anonymous discussions, shared notes, real campus issues, disappearing
-          DMs. Zero email. Zero judgement.
+          Pseudonymous campus discussions, shared notes, and resources. Join the conversation with a handle, not your real name.
         </p>
 
         <button
           type="button"
           onClick={enter}
-          className="mt-10 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-8 py-3 text-sm font-semibold text-neutral-900 shadow-lg transition-transform active:scale-95"
-          style={{
-            background: 'linear-gradient(135deg, #FF6FD8 0%, #B794F6 100%)',
-            boxShadow: '0 8px 32px rgba(255,111,216,0.4)',
-          }}
+          disabled={!authReady}
+          className="mt-10 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-bubblegum to-lavender px-8 py-3 text-sm font-semibold text-neutral-900 shadow-lg transition-transform active:scale-95 disabled:cursor-wait disabled:opacity-70"
         >
-          Enter the Quad →
+          {authReady ? 'Enter the Quad' : 'Checking your session...'}
         </button>
 
         <p className="mt-6 font-mono text-[10px] text-text-muted">
-          Pseudonymous · Not traceable · Not linked to your email
+          Pseudonymous by default · No real name is shown
         </p>
       </section>
     </main>

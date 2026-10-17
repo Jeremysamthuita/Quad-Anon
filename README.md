@@ -2,7 +2,7 @@
 
 QuadAnon is a pseudonymous campus community web app for university students. Its interface brings together campus posts, short-form media, direct messages, issue reporting, and academic resources.
 
-> **Development status:** The frontend can be run locally as described below. The current authentication context starts with a demo student profile, and much of the feature UI uses in-memory state. A Supabase schema, security policies, and migrations are included, but configuring Supabase alone does not turn the demo profile or every screen into a production-ready backend integration.
+> **Development status:** Authentication uses Supabase anonymous sign-in and profile rows. Feed, moderation, and messaging features still contain in-memory demo interactions and are not yet fully connected to database storage.
 
 ## Features
 
@@ -11,7 +11,7 @@ QuadAnon is a pseudonymous campus community web app for university students. Its
 - **Shadow DMs** (`/dms`): interface for pseudonymous direct messages.
 - **The Radar** (`/radar`): campus issue and grievance tracker.
 - **The Library** (`/library`): shared academic resource catalog.
-- **Profile and campus identity:** demo pseudonymous profile and launch campus information.
+- **Profile and campus identity:** pseudonymous profile stored in the Supabase `profiles` table and launch campus information.
 - **Moderation UI** (`/admin`): moderation dashboard route.
 - **Privacy page** (`/privacy`), theme toggle, and installable progressive web app (PWA) support.
 
@@ -55,7 +55,7 @@ If port 3000 is already in use, stop the other process using it or change the po
 
 The repository contains Supabase database migrations and an environment-variable template. To connect a Supabase project:
 
-1. Create a Supabase project.
+1. Create a Supabase project and enable anonymous sign-ins in its Auth settings.
 2. Copy `.env.example` to `.env` in the project root:
 
    ```powershell
@@ -74,7 +74,7 @@ The repository contains Supabase database migrations and an environment-variable
 
 Only use the **public anon key** in `VITE_SUPABASE_ANON_KEY`. Variables prefixed with `VITE_` are bundled into frontend code. Never put a Supabase service-role key, email hash secret, or other server-side secret in a `VITE_` variable or commit it to the repository. The `.env*` files are ignored by Git except `.env.example`.
 
-The current `AuthContext` uses a local demo profile rather than Supabase Auth. The UI can be explored without Supabase credentials, but backend-dependent behavior requires additional integration and correct database setup. Do not treat the demo identity or client UI as production authentication or authorization.
+The app requires the Supabase URL and public anon key to create a Supabase anonymous session and save a profile. Supabase persists the auth session; the profile itself is fetched from the `profiles` table and is not stored in app local storage. The remaining content features are still demo interactions until their data flows are connected to the database and verified against the row-level security policies.
 
 ## Useful commands
 
@@ -133,4 +133,4 @@ Open the local URL printed by Vite's preview command.
 - **`bun` is not recognized:** Install Bun, close and reopen PowerShell or the VS Code terminal, then try again.
 - **`localhost:3000` does not load:** Check that `bun run dev` is still running and use the exact URL printed by Vite.
 - **Port 3000 is occupied:** Stop the process using it or change the port in `package.json`.
-- **Supabase warnings or unavailable backend behavior:** Check that `.env` exists, both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set correctly, and restart the dev server. Also note that some authentication and feature flows are currently demo implementations.
+- **Supabase authentication unavailable:** Check that `.env` exists, both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set correctly, anonymous sign-ins are enabled in Supabase Auth, and restart the dev server. Content feature flows are still demo implementations.

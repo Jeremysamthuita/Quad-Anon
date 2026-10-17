@@ -83,7 +83,6 @@ export const QuadFeed: React.FC = () => {
   };
 
   const handleVotePoll = (postId: string, optionId: string) => {
-    playHapticSound('vote');
     setPosts((prev) =>
       prev.map((p) => {
         if (p.id !== postId || !p.poll) return p;
@@ -186,7 +185,7 @@ export const QuadFeed: React.FC = () => {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       {/* Top Controls */}
-      <div className="p-4 rounded-3xl water-glass-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
+      <div className="p-4 rounded-3xl water-glass-card border border-border-glass flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-bubblegum/15 text-bubblegum flex items-center justify-center shrink-0">
             <MessageSquare className="w-5 h-5" aria-hidden="true" />
@@ -220,7 +219,6 @@ export const QuadFeed: React.FC = () => {
             role="tab"
             aria-selected={filterType === ft}
             onClick={() => {
-              playHapticSound('click');
               setFilterType(ft);
             }}
             className={`px-3 py-1.5 rounded-xl text-xs font-mono capitalize transition-all min-h-[36px] ${
@@ -353,7 +351,7 @@ export const QuadFeed: React.FC = () => {
                         onClick={() => handleToggleReaction(post.id, type)}
                         aria-label={`${label} reaction (${count})`}
                         aria-pressed={isSelected}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-mono min-h-[36px] transition-all ${
+                        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-mono min-h-[44px] transition-all ${
                           isSelected
                             ? 'bg-white/20 border border-white/40 font-bold scale-105'
                             : 'bg-surface border border-border-glass text-text-secondary hover:text-text-primary'
@@ -369,7 +367,7 @@ export const QuadFeed: React.FC = () => {
                 <button
                   onClick={() => setActiveCommentsPostId(post.id)}
                   aria-label={`View ${post.commentsCount} comments`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border-glass text-xs font-mono text-text-secondary hover:text-text-primary min-h-[36px]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border-glass text-xs font-mono text-text-secondary hover:text-text-primary min-h-[44px]"
                 >
                   <MessageSquare className="w-3.5 h-3.5 text-bubblegum" aria-hidden="true" />
                   <span>{post.commentsCount}</span>

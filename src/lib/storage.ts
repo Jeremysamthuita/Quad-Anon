@@ -1,6 +1,6 @@
 /**
- * Safe localStorage wrapper for UI preferences and pseudonymous profile metadata.
- * Do not persist credentials, private DMs, or other sensitive data here.
+ * Safe localStorage wrapper for UI preferences only.
+ * Do not persist profiles, credentials, private DMs, or other sensitive data here.
  */
 
 export const safeStorage = {

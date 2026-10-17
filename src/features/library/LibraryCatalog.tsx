@@ -62,7 +62,6 @@ export const LibraryCatalog: React.FC = () => {
 
   const handleVote = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    playHapticSound('vote');
     setResources((prev) =>
       prev.map((r) => {
         if (r.id !== id) return r;
@@ -150,7 +149,7 @@ export const LibraryCatalog: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Search and Upload Bar */}
-      <div className="p-4 rounded-3xl water-glass-card space-y-3 shadow-sm">
+      <div className="p-4 rounded-3xl water-glass-card border border-border-glass space-y-3 shadow-sm">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="relative flex-1">
             <Search

@@ -37,7 +37,6 @@ export const RadarDashboard: React.FC = () => {
     totalIssues > 0 ? Math.round((resolvedIssues / totalIssues) * 100) : 0;
 
   const handleToggleUpvote = (issueId: string) => {
-    playHapticSound('vote');
     setIssues((prev) =>
       prev.map((iss) => {
         if (iss.id !== issueId) return iss;
@@ -82,7 +81,7 @@ export const RadarDashboard: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="p-4 sm:p-6 rounded-3xl water-glass-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-sm">
+      <div className="p-4 sm:p-6 rounded-3xl water-glass-card border border-border-glass flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-cyan/15 text-cyan flex items-center justify-center shrink-0">
             <Radio className="w-6 h-6" aria-hidden="true" />
@@ -108,26 +107,26 @@ export const RadarDashboard: React.FC = () => {
 
       {/* Aggregate Statistics Computed from Real Rows */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-4 rounded-2xl water-glass-card space-y-1">
+        <div className="p-4 rounded-2xl water-glass-card border border-border-glass space-y-1">
           <div className="text-[11px] font-mono text-text-muted">Total Reported</div>
           <div className="text-xl sm:text-2xl font-bold font-mono text-text-primary">
             {totalIssues}
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl water-glass-card space-y-1">
+        <div className="p-4 rounded-2xl water-glass-card border border-border-glass space-y-1">
           <div className="text-[11px] font-mono text-text-muted">Open Grievances</div>
           <div className="text-xl sm:text-2xl font-bold font-mono text-peach">{openIssues}</div>
         </div>
 
-        <div className="p-4 rounded-2xl water-glass-card space-y-1">
+        <div className="p-4 rounded-2xl water-glass-card border border-border-glass space-y-1">
           <div className="text-[11px] font-mono text-text-muted">Under Review</div>
           <div className="text-xl sm:text-2xl font-bold font-mono text-lemon">
             {underReviewIssues}
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl water-glass-card space-y-1">
+        <div className="p-4 rounded-2xl water-glass-card border border-border-glass space-y-1">
           <div className="text-[11px] font-mono text-text-muted">Resolved</div>
           <div className="text-xl sm:text-2xl font-bold font-mono text-mint">
             {resolutionPercentage}%

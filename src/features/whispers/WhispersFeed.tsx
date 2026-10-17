@@ -137,7 +137,7 @@ export const WhispersFeed: React.FC = () => {
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       {/* Header bar */}
-      <div className="p-4 rounded-3xl water-glass-card flex items-center justify-between shadow-sm">
+      <div className="p-4 rounded-3xl water-glass-card border border-border-glass flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-peach/15 text-peach flex items-center justify-center">
             <Film className="w-5 h-5" aria-hidden="true" />
@@ -199,6 +199,12 @@ export const WhispersFeed: React.FC = () => {
                   alt={whisper.caption}
                   loading="lazy"
                   className="w-full h-full object-cover"
+                  onError={(event) => {
+                    const image = event.currentTarget;
+                    if (image.dataset.fallbackApplied) return;
+                    image.dataset.fallbackApplied = '1';
+                    image.src = '/icon.svg';
+                  }}
                 />
               </div>
 
@@ -233,7 +239,7 @@ export const WhispersFeed: React.FC = () => {
                           onClick={() => handleToggleReaction(whisper.id, type)}
                           aria-label={`${label} reaction (${count})`}
                           aria-pressed={isSelected}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-mono min-h-[36px] transition-all ${
+                          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-mono min-h-[44px] transition-all ${
                             isSelected
                               ? 'bg-white/20 border border-white/40 font-bold scale-105'
                               : 'bg-surface border border-border-glass text-text-secondary hover:text-text-primary'

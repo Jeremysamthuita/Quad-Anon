@@ -1,5 +1,7 @@
 // Subtle Web Audio API tactile & whisper sound synthesizer
 let audioCtx: AudioContext | null = null;
+let lastPlayedAt = 0;
+let lastReactionPlayedAt = 0;
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
@@ -20,9 +22,15 @@ function getAudioContext(): AudioContext | null {
 export type SoundType = 'click' | 'pop' | 'snap' | 'send' | 'vote' | 'badge' | 'whisper';
 
 export function playHapticSound(type: SoundType) {
+  const nowMs = Date.now();
+  if (nowMs - lastPlayedAt < 250) return;
+  if (type === 'vote' && nowMs - lastReactionPlayedAt < 1000) return;
+
   try {
     const ctx = getAudioContext();
     if (!ctx) return;
+    lastPlayedAt = nowMs;
+    if (type === 'vote') lastReactionPlayedAt = nowMs;
 
     const now = ctx.currentTime;
 
@@ -111,7 +119,9 @@ export function playHapticSound(type: SoundType) {
       osc.start(now);
       osc.stop(now + 0.15);
     }
-  } catch {
-    // Graceful fallback if Web Audio is blocked or unsupported
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.warn('Unable to play the QuadAnon interface sound.', error);
+    }
   }
 }

@@ -25,6 +25,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { env } from 'node:process';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../supabase/database.types';
 
@@ -35,9 +36,10 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 // SUPABASE_SERVICE_ROLE_KEY is a server-only secret — never a VITE_ variable.
 // Vitest exposes process.env so we read it here for integration tests only.
-const SERVICE_KEY = process.env['SUPABASE_SERVICE_ROLE_KEY'] as string | undefined;
+const SERVICE_KEY = env['SUPABASE_SERVICE_ROLE_KEY'] as string | undefined;
 
 const hasCredentials = Boolean(SUPABASE_URL && ANON_KEY && SERVICE_KEY);
+const testUserIds = new Map<string, string>();
 
 // Skip all tests gracefully when not configured
 const describeIfConfigured = hasCredentials ? describe : describe.skip;
@@ -68,6 +70,7 @@ async function createTestUser(
     email_confirm: true,
   });
   if (authError || !authData.user) throw new Error(`Auth creation failed: ${authError?.message}`);
+  testUserIds.set(email, authData.user.id);
 
   // Insert profile
   const { error: profileError } = await admin
@@ -88,11 +91,16 @@ async function createTestUser(
   return client;
 }
 
+function getTestUserId(email: string) {
+  const userId = testUserIds.get(email);
+  if (!userId) throw new Error(`No test user ID found for ${email}.`);
+  return userId;
+}
+
 async function deleteTestUser(email: string) {
-  const admin = adminClient();
-  const { data } = await admin.auth.admin.listUsers();
-  const user = data?.users.find((u) => u.email === email);
-  if (user) await admin.auth.admin.deleteUser(user.id);
+  const userId = getTestUserId(email);
+  const { error } = await adminClient().auth.admin.deleteUser(userId);
+  if (error) throw error;
 }
 
 // ─── Test Suite ────────────────────────────────────────────────────────────────
@@ -126,11 +134,9 @@ describeIfConfigured('RLS Policies', () => {
   it('student cannot read posts from a campus they are not a member of', async () => {
     // Insert a post as admin for the fake campus (bypassing RLS)
     const admin = adminClient();
-    const { data: adminProfile } = await admin.auth.admin.listUsers();
-    // We just need any existing user id for the author_id — use the admin insert directly
     const { data: inserted } = await admin.from('posts').insert({
       university_id: CUK_ID, // use real campus but we will filter by a fake one below
-      author_id: (await admin.auth.admin.listUsers()).data.users[0]?.id ?? CUK_ID,
+      author_id: getTestUserId(TEST_EMAIL_A),
       content_text: 'Cross-campus isolation test post',
       expires_at: new Date(Date.now() + 3600000).toISOString(),
     }).select('id').single();
@@ -154,11 +160,6 @@ describeIfConfigured('RLS Policies', () => {
   it("student A cannot read student B's conversation messages", async () => {
     // Create a conversation and message as admin
     const admin = adminClient();
-
-    const { data: profileA } = await clientA
-      .from('profiles')
-      .select('id')
-      .single();
 
     const { data: profileB } = await clientB
       .from('profiles')
@@ -223,6 +224,7 @@ describeIfConfigured('RLS Policies', () => {
       .from('posts')
       .update({ content_text: 'Hijacked by A' })
       .eq('id', post.id);
+    expect(error).toBeNull();
 
     // RLS should block this — either an error or 0 rows updated
     // Supabase returns no error but 0 rows when RLS filters the UPDATE target
@@ -240,7 +242,7 @@ describeIfConfigured('RLS Policies', () => {
 
     const { error } = await clientA
       .from('profiles')
-      .update({ role: 'admin' } as object) // cast to bypass TS Insert type (Update forbids role)
+      .update({ role: 'admin' } as Record<string, unknown>) // bypass the client type to verify the database guard
       .eq('id', profile!.id);
 
     // The protect_profile_system_columns trigger should raise an exception

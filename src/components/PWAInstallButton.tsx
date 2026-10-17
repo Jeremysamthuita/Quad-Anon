@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Download, Smartphone } from 'lucide-react';
-import { playHapticSound } from '../utils/sound';
 import { Modal } from './Modal';
 
 export const PWAInstallButton: React.FC = () => {
@@ -14,7 +13,6 @@ export const PWAInstallButton: React.FC = () => {
   }
 
   const handleInstallClick = async () => {
-    playHapticSound('click');
     if (isInstallable) {
       await install();
     } else {

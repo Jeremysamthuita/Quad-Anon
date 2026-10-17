@@ -4,15 +4,13 @@ import { useAuth } from './AuthContext';
 
 export const DeleteAccountPage: React.FC = () => {
   const navigate = useNavigate();
-  const { profile, setProfile } = useAuth();
-  const [confirm, setConfirm] = useState('');
+  const { profile, signOut } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   if (!profile) {
     navigate('/create-profile', { replace: true });
     return null;
   }
-
-  const disabled = confirm !== 'DELETE';
 
   const handleDownload = () => {
     const data = { profile, exportedAt: new Date().toISOString() };
@@ -25,10 +23,19 @@ export const DeleteAccountPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleDelete = () => {
-    if (disabled) return;
-    setProfile(null);
-    navigate('/create-profile', { replace: true });
+  const handleDelete = async () => {
+    setError(null);
+    try {
+      await signOut();
+      navigate('/create-profile', { replace: true });
+    } catch (deleteError) {
+      console.error('Unable to end the current session.', deleteError);
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : 'Could not end the current session. Please try again.'
+      );
+    }
   };
 
   return (
@@ -36,11 +43,11 @@ export const DeleteAccountPage: React.FC = () => {
       <div className="mx-auto max-w-md px-4 pb-10 pt-8">
         <h1 className="text-3xl font-extrabold text-[var(--text)]">Delete account</h1>
         <p className="mt-4 text-sm text-[var(--muted)]">
-          This can't be undone. To use QuadAnon again you'll create a new profile from scratch, and your old handle may be taken by someone else.
+          Permanent account deletion is not available in this build. Signing out ends this session but does not remove your saved profile, handle, or avatar. Feed and message interactions are not stored on the server in this build.
         </p>
 
         <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--text)]">
-          <div className="font-semibold">This will be removed:</div>
+          <div className="font-semibold">A permanent deletion would need to remove:</div>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-[var(--muted)]">
             <li>Profile, handle and avatar</li>
             <li>Posts, comments and reactions</li>
@@ -56,24 +63,19 @@ export const DeleteAccountPage: React.FC = () => {
           Download my data first
         </button>
 
-        <label className="mt-6 block text-sm font-medium text-[var(--text)]">
-          Type DELETE to confirm
-        </label>
-        <input
-          value={confirm}
-          onChange={(event) => setConfirm(event.target.value)}
-          className="mt-2 w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
-          placeholder="DELETE"
-        />
+        {error && (
+          <p role="alert" className="mt-3 rounded-xl border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+            {error}
+          </p>
+        )}
 
         <div className="mt-6 space-y-3">
           <button
             type="button"
             onClick={handleDelete}
-            disabled={disabled}
-            className="w-full rounded-full bg-[var(--danger)] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full rounded-full bg-[var(--danger)] px-4 py-3 text-sm font-semibold text-white"
           >
-            Delete my account
+            Sign out
           </button>
           <button
             type="button"

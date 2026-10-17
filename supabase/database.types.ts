@@ -353,12 +353,27 @@ export type TakedownRequestInsert = Pick<
 
 export type BlockInsert = Pick<BlockRow, 'blocker_id' | 'blocked_id'>;
 
+type WithRelationships<Tables> = {
+  [TableName in keyof Tables]: Tables[TableName] extends {
+    Row: infer Row;
+    Insert: infer Insert;
+    Update: infer Update;
+  }
+    ? {
+        Row: Row & Record<string, unknown>;
+        Insert: Insert & Record<string, unknown>;
+        Update: Update & Record<string, unknown>;
+        Relationships: [];
+      }
+    : never;
+};
+
 // ─── Supabase Database Shape ───────────────────────────────────────────────────
 // Used as the generic type parameter for createClient<Database>()
 
 export interface Database {
   public: {
-    Tables: {
+    Tables: WithRelationships<{
       universities: {
         Row: UniversityRow;
         Insert: Partial<UniversityRow> & Pick<UniversityRow, 'name' | 'short_code' | 'county' | 'allowed_email_domains'>;
@@ -495,7 +510,7 @@ export interface Database {
         Insert: BlockInsert;
         Update: never;
       };
-    };
+    }>;
     Views: Record<string, never>;
     Functions: {
       get_auth_university_id: { Args: Record<string, never>; Returns: string };
@@ -528,4 +543,3 @@ export interface Database {
     };
   };
 }
-

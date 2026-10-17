@@ -35,12 +35,14 @@ const NotFoundPage = lazy(() =>
 );
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { profile } = useAuth();
+  const { profile, authReady } = useAuth();
+  if (!authReady) return <LoadingState label="Restoring your profile..." />;
   return profile ? <>{children}</> : <Navigate to="/create-profile" replace />;
 };
 
 const NewProfileRoute: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, authReady } = useAuth();
+  if (!authReady) return <LoadingState label="Restoring your profile..." />;
   return profile ? <Navigate to="/whispers" replace /> : <CreateProfilePage />;
 };
 

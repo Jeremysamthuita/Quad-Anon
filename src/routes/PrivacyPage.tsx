@@ -20,9 +20,9 @@ export const PrivacyPage: React.FC = () => {
         </div>
 
         <p className="text-sm text-text-secondary leading-relaxed">
-          QuadAnon is a <strong>pseudonymous</strong> campus network, not an untraceable network. We
-          believe in complete transparency about what data our system handles, what we can inspect,
-          and what is deleted automatically.
+          QuadAnon is a <strong>pseudonymous</strong> campus network, not an untraceable network.
+          This page explains what profile data is currently stored and which features are still
+          demos.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
@@ -34,20 +34,20 @@ export const PrivacyPage: React.FC = () => {
             </div>
             <ul className="text-xs sm:text-sm text-text-secondary space-y-2 list-disc pl-4">
               <li>
-                <strong>Your verified university campus:</strong> We know which campus network you
-                belong to based on student email verification.
+                <strong>Your selected institution:</strong> Your profile is associated with the
+                institution you selected during setup.
               </li>
               <li>
-                <strong>Your pseudonymous handle:</strong> Posts, whispers, and messages are tied to
-                your pseudonymous profile ID.
+                <strong>Your profile:</strong> Your handle, selected institution, and avatar are
+                saved to your anonymous account.
               </li>
               <li>
-                <strong>Public campus activity:</strong> Content you broadcast publicly to Whispers,
-                The Quad, and The Radar is visible to your campus peers.
+                <strong>Campus activity:</strong> The feed and reporting screens are demo
+                interactions and are not yet connected to shared database content.
               </li>
               <li>
-                <strong>Abuse reports:</strong> When content is flagged by peers, moderators review
-                the reported snippet.
+                <strong>Abuse reports:</strong> The report review flow is not yet connected to a
+                server-side moderation queue.
               </li>
             </ul>
           </div>
@@ -60,17 +60,16 @@ export const PrivacyPage: React.FC = () => {
             </div>
             <ul className="text-xs sm:text-sm text-text-secondary space-y-2 list-disc pl-4">
               <li>
-                <strong>Plaintext email addresses on content:</strong> We do not store plaintext
-                emails in content tables. We store only a keyed cryptographic hash to prevent
-                duplicate accounts.
+                <strong>Email addresses on your profile:</strong> Anonymous sign-in does not ask
+                for an email address, and your pseudonymous profile does not display one.
               </li>
               <li>
                 <strong>Real student names or phone numbers:</strong> Profiles contain only handles
-                and avatar styles.
+                and avatar styles, plus the selected institution and account metadata.
               </li>
               <li>
-                <strong>Expired messages and media:</strong> Once an ephemeral timer expires, the
-                row and its stored file are deleted from our database and storage.
+                <strong>Server-side message deletion:</strong> The current messaging UI keeps demo
+                messages in memory only and does not claim to delete server-stored messages.
               </li>
               <li>
                 <strong>Third-party tracker profiles:</strong> We do not sell data or inject
@@ -83,12 +82,12 @@ export const PrivacyPage: React.FC = () => {
         <div className="p-4 rounded-2xl bg-canvas border border-border-glass space-y-2">
           <div className="flex items-center gap-2 font-mono text-xs font-bold text-text-primary">
             <Trash2 className="w-4 h-4 text-danger" aria-hidden="true" />
-            <span>Server-Side Expiration Guarantee</span>
+            <span>Expiration Support</span>
           </div>
           <p className="text-xs text-text-secondary leading-relaxed">
-            Content marked with a lifespan (view once, 1 hour, 24 hours, or 1 week) is deleted by
-            our server-side database cleanup jobs. Expired items are filtered by database Row Level
-            Security policies and cannot be read after their timer lapses.
+            The database schema includes expiration fields and cleanup jobs for connected content.
+            The current feed and messaging interactions are demos, so do not treat their timers as
+            a guarantee that server data has been deleted.
           </p>
         </div>
       </div>

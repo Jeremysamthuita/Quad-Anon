@@ -3,12 +3,15 @@ import { useAuth } from './AuthContext';
 import { Modal } from '../../components/Modal';
 import { AVATAR_STICKER_LIBRARY } from '../../data/avatarLibrary';
 import { playHapticSound } from '../../utils/sound';
+import { AvatarMask } from '../../components/AvatarMask';
 import { Sparkles, Download, Trash2, Building2 } from 'lucide-react';
 
 export const ProfileModal: React.FC = () => {
   const { profile, campus, activeModal, closeModal, setProfile, signOut } = useAuth();
   const [handleInput, setHandleInput] = useState(profile?.handle || 'CampusStudent');
   const [selectedAvatar, setSelectedAvatar] = useState(profile?.avatarStyle || 'phantom_ghostling');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (activeModal !== 'profile' || !profile) return;
@@ -18,15 +21,23 @@ export const ProfileModal: React.FC = () => {
 
   if (activeModal !== 'profile' || !profile) return null;
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    playHapticSound('click');
-    setProfile({
-      ...profile,
-      handle: handleInput.trim().replace(/^@/, '') || 'CampusStudent',
-      avatarStyle: selectedAvatar,
-    });
-    closeModal();
+    setSaveError(null);
+    try {
+      await setProfile({
+        ...profile,
+        handle: handleInput.trim().replace(/^@/, ''),
+        avatarStyle: selectedAvatar,
+      });
+      playHapticSound('click');
+      closeModal();
+    } catch (error) {
+      console.error('Unable to save profile changes.', error);
+      setSaveError(
+        error instanceof Error ? error.message : 'Could not save profile changes. Please try again.'
+      );
+    }
   };
 
   const handleDownloadData = () => {
@@ -48,25 +59,31 @@ export const ProfileModal: React.FC = () => {
   };
 
   const handleDeleteAccount = () => {
-    if (
-      window.confirm(
-        'Delete pseudonymous account and all associated content? This is irreversible.'
-      )
-    ) {
-      signOut();
+    setConfirmDelete(true);
+  };
+
+  const handleConfirmSignOut = async () => {
+    try {
+      await signOut();
+      setConfirmDelete(false);
       closeModal();
+    } catch (error) {
+      console.error('Unable to sign out.', error);
+      setSaveError(error instanceof Error ? error.message : 'Could not sign out. Please try again.');
+      setConfirmDelete(false);
     }
   };
 
   return (
-    <Modal
-      isOpen={activeModal === 'profile'}
-      onClose={closeModal}
-      title="Pseudonymous Student Profile"
-      description={`Verified with ${campus.shortCode} email domain.`}
-      maxWidth="md"
-    >
-      <form onSubmit={handleSave} className="space-y-4">
+    <>
+      <Modal
+        isOpen={activeModal === 'profile' && !confirmDelete}
+        onClose={closeModal}
+        title="Pseudonymous Student Profile"
+        description={`Profile linked to ${campus.name}.`}
+        maxWidth="md"
+      >
+        <form onSubmit={handleSave} className="space-y-4">
         {/* Campus Badge */}
         <div className="p-3 rounded-2xl bg-canvas border border-border-glass flex items-center gap-3 text-xs font-mono">
           <Building2 className="w-5 h-5 text-mint" aria-hidden="true" />
@@ -108,19 +125,14 @@ export const ProfileModal: React.FC = () => {
                 <button
                   key={sticker.id}
                   type="button"
-                  onClick={() => {
-                    playHapticSound('click');
-                    setSelectedAvatar(sticker.id);
-                  }}
-                  className={`p-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
+                  onClick={() => setSelectedAvatar(sticker.id)}
+                  className={`min-h-[68px] p-2 rounded-2xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
                     isSelected
                       ? 'bg-white/15 border-mint shadow-md scale-105'
                       : 'bg-canvas border-border-glass hover:border-text-muted'
                   }`}
                 >
-                  <span className="text-2xl" role="img" aria-label={sticker.name}>
-                    {sticker.emoji}
-                  </span>
+                  <AvatarMask avatarStyle={sticker.id} size={32} />
                   <span className="text-[10px] font-mono text-text-secondary truncate w-full">
                     {sticker.name}
                   </span>
@@ -129,6 +141,12 @@ export const ProfileModal: React.FC = () => {
             })}
           </div>
         </div>
+
+        {saveError && (
+          <p role="alert" className="rounded-xl border border-danger/40 bg-danger/10 p-3 text-xs text-danger">
+            {saveError}
+          </p>
+        )}
 
         {/* Data Rights: Download Data & Account Deletion */}
         <div className="pt-2 border-t border-border-glass flex items-center justify-between">
@@ -166,7 +184,34 @@ export const ProfileModal: React.FC = () => {
             Save Changes
           </button>
         </div>
-      </form>
-    </Modal>
+        </form>
+      </Modal>
+      <Modal
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="End this session?"
+        description="Your profile and content will remain on the server."
+      >
+        <p className="text-sm text-text-secondary">
+          QuadAnon cannot permanently delete the account or its content from this screen yet.
+        </p>
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setConfirmDelete(false)}
+            className="min-h-[44px] rounded-xl px-4 py-2 text-xs font-mono text-text-secondary"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirmSignOut}
+            className="min-h-[44px] rounded-full bg-danger px-5 py-2 text-xs font-mono font-bold text-white"
+          >
+            Sign out
+          </button>
+        </div>
+      </Modal>
+    </>
   );
 };
