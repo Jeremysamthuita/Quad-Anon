@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { Modal } from '../../components/Modal';
 import { AVATAR_STICKER_LIBRARY } from '../../data/avatarLibrary';
@@ -9,6 +9,12 @@ export const ProfileModal: React.FC = () => {
   const { profile, campus, activeModal, closeModal, setProfile, signOut } = useAuth();
   const [handleInput, setHandleInput] = useState(profile?.handle || 'CampusStudent');
   const [selectedAvatar, setSelectedAvatar] = useState(profile?.avatarStyle || 'phantom_ghostling');
+
+  useEffect(() => {
+    if (activeModal !== 'profile' || !profile) return;
+    setHandleInput(profile.handle);
+    setSelectedAvatar(profile.avatarStyle);
+  }, [activeModal, profile]);
 
   if (activeModal !== 'profile' || !profile) return null;
 

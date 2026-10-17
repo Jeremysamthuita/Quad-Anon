@@ -1,5 +1,22 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Profile, University } from '../../types';
+import { safeStorage } from '../../lib/storage';
+
+const PROFILE_STORAGE_KEY = 'quadanon.profile';
+
+function isProfile(value: unknown): value is Profile {
+  if (!value || typeof value !== 'object') return false;
+  const profile = value as Partial<Profile>;
+  return (
+    typeof profile.id === 'string' &&
+    typeof profile.universityId === 'string' &&
+    typeof profile.handle === 'string' &&
+    typeof profile.avatarStyle === 'string' &&
+    (profile.role === 'student' || profile.role === 'moderator' || profile.role === 'admin') &&
+    typeof profile.createdAt === 'string' &&
+    (typeof profile.bannedAt === 'string' || profile.bannedAt === null)
+  );
+}
 
 export const LAUNCH_CAMPUS: University = {
   id: 'cuk-main',
@@ -24,17 +41,22 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Production auth will connect to Supabase Auth in Phase 3.
-  // For Phase 1, start with a clean pseudonymous student session on the launch campus.
-  const [profile, setProfile] = useState<Profile | null>({
-    id: 'anon-local-session',
-    universityId: LAUNCH_CAMPUS.id,
-    handle: 'CampusStudent',
-    avatarStyle: 'phantom_ghostling',
-    role: 'student',
-    createdAt: new Date().toISOString(),
-    bannedAt: null,
+  const [profile, setProfileState] = useState<Profile | null>(() => {
+    const savedProfile = safeStorage.getItem<unknown>(PROFILE_STORAGE_KEY, null);
+    if (isProfile(savedProfile)) return savedProfile;
+    if (savedProfile !== null) safeStorage.removeItem(PROFILE_STORAGE_KEY);
+    return null;
   });
+
+  const setProfile = (nextProfile: Profile | null) => {
+    const persisted = nextProfile
+      ? safeStorage.setItem(PROFILE_STORAGE_KEY, nextProfile)
+      : safeStorage.removeItem(PROFILE_STORAGE_KEY);
+    if (!persisted) {
+      console.error('Unable to save the local QuadAnon profile. Check browser storage settings.');
+    }
+    setProfileState(nextProfile);
+  };
 
   const [activeModal, setActiveModal] = useState<string | null>(null);
 

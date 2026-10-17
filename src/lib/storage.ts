@@ -1,7 +1,6 @@
 /**
- * Safe localStorage wrapper with try/catch.
- * Non-negotiable principle: Only persist UI preferences (such as theme) locally.
- * No user credentials, private DMs, or sensitive data in localStorage.
+ * Safe localStorage wrapper for UI preferences and pseudonymous profile metadata.
+ * Do not persist credentials, private DMs, or other sensitive data here.
  */
 
 export const safeStorage = {

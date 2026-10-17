@@ -49,3 +49,4 @@ describe('safeStorage', () => {
     expect(result).toBe('fallback');
   });
 });
+

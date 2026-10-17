@@ -4,8 +4,11 @@ import { AppLayout } from '../components/AppLayout';
 import { LoadingState } from '../components/LoadingState';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ProfileModal } from '../features/auth/ProfileModal';
+import { CreateProfilePage } from '../features/auth/CreateProfilePage';
+import { DeleteAccountPage } from '../features/auth/DeleteAccountPage';
+import { useAuth } from '../features/auth/AuthContext';
+import { LandingPage } from './LandingPage';
 
-// Code-split routes with React.lazy
 const WhispersFeed = lazy(() =>
   import('../features/whispers/WhispersFeed').then((m) => ({ default: m.WhispersFeed }))
 );
@@ -31,28 +34,38 @@ const NotFoundPage = lazy(() =>
   import('../routes/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
 );
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { profile } = useAuth();
+  return profile ? <>{children}</> : <Navigate to="/create-profile" replace />;
+};
+
+const NewProfileRoute: React.FC = () => {
+  const { profile } = useAuth();
+  return profile ? <Navigate to="/whispers" replace /> : <CreateProfilePage />;
+};
+
 export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <ErrorBoundary>
         <Suspense fallback={<LoadingState label="Loading campus view..." />}>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/create-profile" element={<NewProfileRoute />} />
             <Route element={<AppLayout />}>
-              {/* Default Landing Page: Redirects to /whispers */}
-              <Route path="/" element={<Navigate to="/whispers" replace />} />
-              <Route path="/whispers" element={<WhispersFeed />} />
-              <Route path="/quad" element={<QuadFeed />} />
-              <Route path="/dms" element={<ShadowDMsPage />} />
-              <Route path="/dms/:conversationId" element={<ShadowDMsPage />} />
-              <Route path="/radar" element={<RadarDashboard />} />
-              <Route path="/library" element={<LibraryCatalog />} />
               <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/whispers" element={<ProtectedRoute><WhispersFeed /></ProtectedRoute>} />
+              <Route path="/quad" element={<ProtectedRoute><QuadFeed /></ProtectedRoute>} />
+              <Route path="/dms" element={<ProtectedRoute><ShadowDMsPage /></ProtectedRoute>} />
+              <Route path="/dms/:conversationId" element={<ProtectedRoute><ShadowDMsPage /></ProtectedRoute>} />
+              <Route path="/radar" element={<ProtectedRoute><RadarDashboard /></ProtectedRoute>} />
+              <Route path="/library" element={<ProtectedRoute><LibraryCatalog /></ProtectedRoute>} />
+              <Route path="/delete-account" element={<ProtectedRoute><DeleteAccountPage /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </Suspense>
-        {/* Global Modals */}
         <ProfileModal />
       </ErrorBoundary>
     </BrowserRouter>
